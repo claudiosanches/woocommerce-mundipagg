@@ -127,15 +127,19 @@ class WC_MundiPagg {
 	 * @return  void
 	 */
 	protected function init() {
-		// Checks with WooCommerce is installed.
-		if ( class_exists( 'WC_Payment_Gateway' ) && class_exists( 'Extra_Checkout_Fields_For_Brazil' ) ) {
-			// Include the WC_MundiPagg_Gateway class.
-			include_once 'includes/class-wc-mundipagg-gateway.php';
+		if ( class_exists( 'SoapClient' ) ) {
+			// Checks with WooCommerce is installed.
+			if ( class_exists( 'WC_Payment_Gateway' ) && class_exists( 'Extra_Checkout_Fields_For_Brazil' ) ) {
+				// Include the WC_MundiPagg_Gateway class.
+				include_once 'includes/class-wc-mundipagg-gateway.php';
 
-			add_action( 'wp_enqueue_scripts', array( $this, 'load_scripts' ) );
-			add_filter( 'woocommerce_payment_gateways', array( $this, 'add_gateway' ) );
+				add_action( 'wp_enqueue_scripts', array( $this, 'load_scripts' ) );
+				add_filter( 'woocommerce_payment_gateways', array( $this, 'add_gateway' ) );
+			} else {
+				add_action( 'admin_notices', array( $this, 'woocommerce_missing_notice' ) );
+			}
 		} else {
-			add_action( 'admin_notices', array( $this, 'woocommerce_missing_notice' ) );
+			add_action( 'admin_notices', array( $this, 'soap_missing_notice' ) );
 		}
 	}
 
@@ -179,6 +183,20 @@ class WC_MundiPagg {
 			'<strong>' . __( 'WooCommerce MundiPagg Gateway', self::$plugin_slug ) . '</strong>',
 			'<a href="http://wordpress.org/extend/plugins/woocommerce/">' . __( 'WooCommerce', self::$plugin_slug ) . '</a>',
 			'<a href="http://wordpress.org/plugins/woocommerce-extra-checkout-fields-for-brazil/">' . __( 'WooCommerce Extra Checkout Fields for Brazil', self::$plugin_slug ) . '</a>'
+		) . '</p></div>';
+	}
+
+	/**
+	 * Soap fallback notice.
+	 *
+	 * @version 1.0.0
+	 *
+	 * @return  string
+	 */
+	public function soap_missing_notice() {
+		echo '<div class="error"><p>' . sprintf(
+			__( '%s needs to have installed on your server the SOAP module to works!', self::$plugin_slug ),
+			'<strong>' . __( 'WooCommerce MundiPagg Gateway', self::$plugin_slug ) . '</strong>'
 		) . '</p></div>';
 	}
 }
