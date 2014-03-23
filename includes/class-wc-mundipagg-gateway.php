@@ -687,15 +687,18 @@ class WC_MundiPagg_Gateway extends WC_Payment_Gateway {
 						$valid = true;
 
 						break;
+					case 'Captured':
 					case 'Paid':
-						$order->add_order_note( __( 'MundiPagg: Transaction approved.', $this->plugin_slug ) );
-						$order->payment_complete();
-						$valid = true;
-
-						break;
+					case 'Overpaid':
 					case 'OverPaid':
-						$order->add_order_note( __( 'MundiPagg: This order was paid with a higher value than expected.', $this->plugin_slug ) );
+						$order->add_order_note( __( 'MundiPagg: Transaction approved.', $this->plugin_slug ) );
+
+						if ( in_array( $order_status, array( 'Overpaid', 'OverPaid' ) ) ) {
+							$order->add_order_note( __( 'MundiPagg: This order was paid with a higher value than expected.', $this->plugin_slug ) );
+						}
+
 						$order->payment_complete();
+
 						$valid = true;
 
 						break;
@@ -705,6 +708,9 @@ class WC_MundiPagg_Gateway extends WC_Payment_Gateway {
 
 						break;
 					case 'PartialPaid':
+					case 'Partialpaid':
+					case 'UnderPaid':
+					case 'Underpaid':
 						$order->update_status( 'on-hold', __( 'MundiPagg: Only a few transactions have been paid to date.', $this->plugin_slug ) );
 						$valid = true;
 
