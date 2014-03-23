@@ -111,7 +111,6 @@ class WC_MundiPagg_Gateway extends WC_Payment_Gateway {
 		return in_array( get_woocommerce_currency(), $supported );
 	}
 
-
 	/**
 	 * Returns a value indicating the the Gateway is available or not. It's called
 	 * automatically by WooCommerce before allowing customers to use the gateway
@@ -146,7 +145,7 @@ class WC_MundiPagg_Gateway extends WC_Payment_Gateway {
 				'type'        => 'text',
 				'description' => __( 'This controls the title which the user sees during checkout.', $this->plugin_slug ),
 				'desc_tip'    => true,
-				'default'     => __( 'Credit Cart', $this->plugin_slug )
+				'default'     => __( 'MundiPagg', $this->plugin_slug )
 			),
 			'description' => array(
 				'title'       => __( 'Description', $this->plugin_slug ),
@@ -191,14 +190,55 @@ class WC_MundiPagg_Gateway extends WC_Payment_Gateway {
 	}
 
 	/**
-	 * Generate the payment xml.
+	 * Money to cents.
+	 *
+	 * @param  float $value Amount money format.
+	 *
+	 * @return int          Amount in cents/int.
+	 */
+	protected function fix_money( $value ) {
+		$values = explode( '.', $value );
+
+		if ( 2 == count( $values ) ) {
+			if ( 1 == strlen( $values[1] ) ) {
+				return $values[0] . $values[1] . '0';
+			} else {
+				return $values[0] . $values[1];
+			}
+		} else {
+			return $value . '00';
+		}
+	}
+
+	/**
+	 * Generate the payment data.
 	 *
 	 * @param object  $order Order data.
 	 *
-	 * @return string        Payment xml.
+	 * @return string        Payment data.
 	 */
-	protected function generate_payment_xml( $order ) {
+	protected function generate_payment_data( $order ) {
+		$total   = $this->fix_money( (float) $order->order_total );
+		$request = array(
+			'createOrderRequest' => array(
+				'MerchantKey'                     => $this->merchant_key,
+				'OrderReference'                  => $this->invoice_prefix . $order->id,
+				'AmountInCents'                   => $total,
+				'AmountInCentsToConsiderPaid'     => $total,
+				'EmailUpdateToBuyerEnum'          => 'No',
+				'CurrencyIsoEnum'                 => get_woocommerce_currency(),
+				'RequestKey'                      => $this->invoice_prefix . $order->id,
+				// 'Retries'                      => 0, // Default in one plataform.
+				'Buyer'                           => null,
+				'CreditCardTransactionCollection' => null,
+				'BoletoTransactionCollection'     => null,
+				'ShoppingCartCollection'          => null
+			)
+		);
 
+		$request = apply_filters( 'woocommerce_mundipagg_payment_data', $request, $order );
+
+		return $request;
 	}
 
 	/**
@@ -209,7 +249,7 @@ class WC_MundiPagg_Gateway extends WC_Payment_Gateway {
 	 * @return bool
 	 */
 	public function generate_payment_token( $order ) {
-
+		return $this->generate_payment_data( $order );
 	}
 
 	/**
@@ -222,17 +262,21 @@ class WC_MundiPagg_Gateway extends WC_Payment_Gateway {
 	public function process_payment( $order_id ) {
 		$order = new WC_Order( $order_id );
 
-		$token = $this->generate_payment_token( $order );
+		$response = $this->generate_payment_token( $order );
 
-		if ( $token ) {
-			// Remove cart.
-			$this->woocommerce_instance()->cart->empty_cart();
+		error_log( print_r( $response, true ) );
 
-			return array(
-				'result'   => 'success',
-				'redirect' => esc_url_raw( $this->payment_url . $token )
-			);
-		}
+		return array( 'result' => 'fail', 'redirect' => '' );
+
+		// if ( $response ) {
+		// 	// Remove cart.
+		// 	$this->woocommerce_instance()->cart->empty_cart();
+
+		// 	return array(
+		// 		'result'   => 'success',
+		// 		'redirect' => esc_url_raw( $this->payment_url . $token )
+		// 	);
+		// }
 	}
 
 	/**
