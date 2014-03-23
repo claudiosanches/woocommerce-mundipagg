@@ -210,6 +210,40 @@ class WC_MundiPagg_Gateway extends WC_Payment_Gateway {
 		}
 	}
 
+	protected function fix_phone( $value ) {
+		if ( ! empty( $value ) ) {
+			return preg_replace( '/\D/', '', $value );
+		}
+
+		return $value;
+	}
+
+	protected function get_country( $code ) {
+		$countries = array(
+			'BR' => 'Brazil',
+			'US' => 'USA',
+			'AR' => 'Argentina',
+			'BO' => 'Bolivia',
+			'CL' => 'Chile',
+			'CO' => 'Colombia',
+			'UY' => 'Uruguay',
+			'MX' => 'Mexico',
+			'PY' => 'Paraguay'
+		);
+
+		if ( ! isset( $countries[ $code ] ) ) {
+			return $countries['BR'];
+		}
+
+		return $countries[ $code ];
+	}
+
+	protected function get_gender( $value ) {
+		$gender = substr( strtoupper( $value ), 0, 1 );
+
+		return $gender;
+	}
+
 	/**
 	 * Generate the payment data.
 	 *
@@ -218,7 +252,10 @@ class WC_MundiPagg_Gateway extends WC_Payment_Gateway {
 	 * @return string        Payment data.
 	 */
 	protected function generate_payment_data( $order ) {
-		$total   = $this->fix_money( (float) $order->order_total );
+		// Order total in cents.
+		$total = $this->fix_money( (float) $order->order_total );
+
+		// Order request.
 		$request = array(
 			'createOrderRequest' => array(
 				'MerchantKey'                     => $this->merchant_key,
@@ -233,6 +270,135 @@ class WC_MundiPagg_Gateway extends WC_Payment_Gateway {
 				'CreditCardTransactionCollection' => null,
 				'BoletoTransactionCollection'     => null,
 				'ShoppingCartCollection'          => null
+			)
+		);
+
+		// Buyer.
+		$request['createOrderRequest']['Buyer'] = array(
+			// 'BuyerKey'                  => '00000000-0000-0000-0000-000000000000',
+			'BuyerReference'            => $order->customer_user,
+			// 'CreateDateInMerchant'      => '',
+			// 'LastBuyerUpdateInMerchant' => '',
+			'Email'                     => $order->billing_email,
+			// 'FacebookId'                => '',
+			'GenderEnum'                => isset( $order->billing_sex ) ? $this->get_gender( $order->billing_sex ) : 'M', // M or F
+			'IpAddress'                 => $order->customer_ip_address,
+			'Name'                      => $order->billing_first_name . ' ' . $order->billing_last_name,
+			'PersonTypeEnum'            => 'Person', // Person or Company
+			'TaxDocumentNumber'         => '',
+			'TaxDocumentTypeEnum'       => 'CPF', // CPF or CNPJ
+			// 'TwitterId'                 => '',
+			'HomePhone'                 => $this->fix_phone( $order->billing_phone ),
+			'WorkPhone'                 => '',
+			'MobilePhone'               => isset( $order->billing_cellphone ) ? $this->fix_phone( $order->billing_cellphone ) : '',
+			'BuyerAddressCollection'    => array(
+				array(
+					'City'            => $order->billing_city,
+					'Complement'      => $order->billing_address_2,
+					'CountryEnum'     => $this->get_country( $order->billing_country ),
+					'District'        => isset( $order->billing_neighborhood ) ? $order->billing_neighborhood : '',
+					'Number'          => isset( $order->billing_number ) ? $order->billing_number : '',
+					'State'           => $order->billing_state,
+					'Street'          => $order->billing_address_1,
+					'ZipCode'         => $order->billing_postcode,
+					'AddressTypeEnum' => 'Billing', // Billing, Shipping, Comercial or Residential.
+				)
+			)
+		);
+
+		// Buyer person type, document number and document type enum.
+		if ( isset( $order->billing_persontype ) ) {
+			if ( 1 == $order->billing_persontype ) {
+				$request['createOrderRequest']['Buyer']['PersonTypeEnum']      = 'Person';
+				$request['createOrderRequest']['Buyer']['TaxDocumentNumber']   = str_replace( array( '-', '.' ), '', $order->billing_cpf );
+				$request['createOrderRequest']['Buyer']['TaxDocumentTypeEnum'] = 'CPF';
+			}
+
+			if ( 2 == $order->billing_persontype ) {
+				$request['createOrderRequest']['Buyer']['PersonTypeEnum']      = 'Company';
+				$request['createOrderRequest']['Buyer']['TaxDocumentNumber']   = str_replace( array( '-', '.' ), '', $order->billing_cnpj );
+				$request['createOrderRequest']['Buyer']['TaxDocumentTypeEnum'] = 'CNPJ';
+			}
+		}
+
+		// Buyer shipping address.
+		if ( isset( $_POST['ship_to_different_address'] ) ) {
+			$request['createOrderRequest']['Buyer']['BuyerAddressCollection'][] = array(
+				'City'            => $order->shipping_city,
+				'Complement'      => $order->shipping_address_2,
+				'CountryEnum'     => $this->get_country( $order->shipping_country ),
+				'District'        => isset( $order->shipping_neighborhood ) ? $order->shipping_neighborhood : '',
+				'Number'          => isset( $order->shipping_number ) ? $order->shipping_number : '',
+				'State'           => $order->shipping_state,
+				'Street'          => $order->shipping_address_1,
+				'ZipCode'         => $order->shipping_postcode,
+				'AddressTypeEnum' => 'Shipping',
+			);
+		}
+
+		// Shop cart.
+		if ( version_compare( WOOCOMMERCE_VERSION, '2.1', '>=' ) ) {
+			$shipping_total = $this->fix_money( $order->get_total_shipping() );
+		} else {
+			$shipping_total = $this->fix_money( $order->get_shipping() );
+		}
+
+		$cart_items = array();
+
+		if ( sizeof( $order->get_items() ) > 0 ) {
+			foreach ( $order->get_items() as $order_item ) {
+				if ( $order_item['qty'] ) {
+					// Get product data.
+					$product = $order->get_product_from_item( $order_item );
+
+					// Product description.
+					if ( ! empty( $product->post->post_excerpt ) ) {
+						$item_description = $product->post->post_excerpt;
+					} else {
+						$item_description = $product->post->post_content;
+					}
+
+					// Format the product name.
+					$item_name = $order_item['name'];
+					$item_meta = new WC_Order_Item_Meta( $order_item['item_meta'] );
+
+					if ( $meta = $item_meta->display( true, true ) ) {
+						$item_name .= ' - ' . $meta;
+					}
+
+					// Get the prouct sku/id.
+					if ( ! empty( $product->get_sku() ) ) {
+						$item_sku = $product->get_sku();
+					} else if ( $order_item['variation_id'] > 0 ) {
+						$item_sku = $order_item['variation_id'];
+					} else {
+						$item_sku = $order_item['product_id'];
+					}
+
+					// Get the total price.
+					$item_total = $order->get_item_total( $order_item, false );
+
+					$item = array();
+					$item['ItemReference']    = $item_sku;
+					$item['Description']      = wp_trim_words( sanitize_text_field( $item_description ), 20, '...' );
+					$item['Name']             = substr( sanitize_text_field( $item_name ), 0, 95 );
+					$item['Quantity']         = $order_item['qty'];
+					$item['TotalCostInCents'] = $this->fix_money( $item_total * $order_item['qty'] );
+					$item['UnitCostInCents']  = $this->fix_money( $item_total );
+
+					$cart_items[] = $item;
+				}
+			}
+		}
+
+		$request['createOrderRequest']['ShoppingCartCollection'] = array(
+			'ShoppingCart' => array(
+				array(
+					'FreightCostInCents' => $shipping_total,
+					'ShoppingCartItemCollection' => array(
+						'ShoppingCartItem' => $cart_items
+					)
+				)
 			)
 		);
 
