@@ -132,6 +132,7 @@ class WC_MundiPagg {
 			// Include the WC_MundiPagg_Gateway class.
 			include_once 'includes/class-wc-mundipagg-gateway.php';
 
+			add_action( 'wp_enqueue_scripts', array( $this, 'load_scripts' ) );
 			add_filter( 'woocommerce_payment_gateways', array( $this, 'add_gateway' ) );
 		} else {
 			add_action( 'admin_notices', array( $this, 'woocommerce_missing_notice' ) );
@@ -151,6 +152,18 @@ class WC_MundiPagg {
 		$methods[] = 'WC_MundiPagg_Gateway';
 
 		return $methods;
+	}
+
+	/**
+	 * Load scripts.
+	 *
+	 * @return void
+	 */
+	public function load_scripts() {
+		if ( is_checkout() ) {
+			wp_enqueue_script( 'mundipagg-payment', plugins_url( 'assets/js/frontend/payment.js', __FILE__ ), array( 'jquery', 'jquery-payment' ), self::VERSION, true );
+			wp_enqueue_style( 'mundipagg-payment', plugins_url( 'assets/css/frontend/payment.css', __FILE__ ), array(), self::VERSION, 'all' );
+		}
 	}
 
 	/**

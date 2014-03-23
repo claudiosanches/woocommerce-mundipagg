@@ -17,12 +17,12 @@ class WC_MundiPagg_Gateway extends WC_Payment_Gateway {
 		$this->id                 = WC_MundiPagg::get_gateway_id();
 		$this->plugin_slug        = WC_MundiPagg::get_plugin_slug();
 		$this->icon               = '';
-		$this->has_fields         = false;
+		$this->has_fields         = true;
 		$this->method_title       = __( 'MundiPagg', $this->plugin_slug );
 		$this->method_description = '';
 
 		// API.
-		$this->production_url = 'https://transaction.mundipaggone.com/MundiPaggService.svc?wsdl';
+		$this->api_url = 'https://transaction.mundipaggone.com/MundiPaggService.svc?wsdl';
 
 		// Load the form fields.
 		$this->init_form_fields();
@@ -40,7 +40,7 @@ class WC_MundiPagg_Gateway extends WC_Payment_Gateway {
 
 		// Actions.
 		// add_action( 'woocommerce_api_wc_mundipagg_gateway', array( $this, 'check_ipn_response' ) );
-		// add_action( 'valid_mundipagg_ipn_request', array( $this, 'successful_request' ) );
+		// add_action( 'valid_mundipagg_ipn_request', array( $this, 'update_order_status' ) );
 		add_action( 'woocommerce_update_options_payment_gateways_' . $this->id, array( $this, 'process_admin_options' ) );
 
 		// Active logs.
@@ -190,27 +190,35 @@ class WC_MundiPagg_Gateway extends WC_Payment_Gateway {
 	}
 
 	/**
-	 * Money to cents.
+	 * Add error message in checkout.
 	 *
-	 * @param  float $value Amount money format.
+	 * @param string $message Error message.
 	 *
-	 * @return int          Amount in cents/int.
+	 * @return string         Displays the error message.
 	 */
-	protected function fix_money( $value ) {
-		$values = explode( '.', $value );
-
-		if ( 2 == count( $values ) ) {
-			if ( 1 == strlen( $values[1] ) ) {
-				return $values[0] . $values[1] . '0';
-			} else {
-				return $values[0] . $values[1];
-			}
+	protected function add_error( $message ) {
+		if ( version_compare( WOOCOMMERCE_VERSION, '2.1', '>=' ) ) {
+			wc_add_notice( $message, 'error' );
 		} else {
-			return $value . '00';
+			$this->woocommerce_instance()->add_error( $message );
 		}
 	}
 
-	protected function fix_phone( $value ) {
+	/**
+	 * Extract cents of money valey.
+	 *
+	 * @param mixed $money
+	 *
+	 * @return int
+	 */
+	protected function extract_cents( $money ) {
+		$cents = number_format( $money, 2, '', '' );
+		$cents = intval( $cents );
+
+		return $cents;
+	}
+
+	protected function phone_format( $value ) {
 		if ( ! empty( $value ) ) {
 			return preg_replace( '/\D/', '', $value );
 		}
@@ -244,6 +252,100 @@ class WC_MundiPagg_Gateway extends WC_Payment_Gateway {
 		return $gender;
 	}
 
+	protected function get_credit_cards() {
+		$cards = apply_filters( 'woocommerce_mundipagg_availables_credit_cards', array(
+			'Visa'        => __( 'Visa', $this->plugin_slug ),
+			'Mastercard'  => __( 'MasterCard', $this->plugin_slug ),
+			'Hipercard'   => __( 'Hipercard', $this->plugin_slug ),
+			'Amex'        => __( 'Amex', $this->plugin_slug ),
+			'Diners'      => __( 'Diners', $this->plugin_slug ),
+			'Elo'         => __( 'Elo', $this->plugin_slug )
+		) );
+
+		return $cards;
+	}
+
+	protected function get_credit_card_expiry_date( $value ) {
+		$month = '';
+		$year  = '';
+
+		$value = explode( '/', $value );
+		$month = isset( $value[0] ) ? trim( $value[0] ) : '';
+		$year  = isset( $value[1] ) ? trim( $value[1] ) : '';
+
+		return array(
+			'month' => $month,
+			'year'  => $year,
+		);
+	}
+
+	/**
+	 * Payment fields.
+	 *
+	 * @return string
+	 */
+	public function payment_fields() {
+		wp_enqueue_script( 'wc-credit-card-form' );
+		$html = '';
+		if ( $description = $this->get_description() ) {
+			$html .= wpautop( wptexturize( $description ) );
+		}
+
+		$html .= '<input type="hidden" name="' . $this->id . '_payment_type" value="credit-card" />';
+
+		$html .= '<fieldset id="' . $this->id . '-cc-form">';
+
+			// Credit card holder name.
+			$html .= '<p class="form-row form-row-wide">';
+				$html .= '<label for="' . esc_attr( $this->id ) . '-holder-name">' . __( 'Holder Name', $this->plugin_slug ) . ' <span class="required">*</span></label>';
+				$html .= '<input id="' . esc_attr( $this->id ) . '-holder-name" class="input-text wc-credit-card-form-holder-name" type="text" autocomplete="off" name="' . $this->id . '_holder_name" />';
+			$html .= '</p>';
+
+			// Credit card number.
+			$html .= '<p class="form-row form-row-wide">';
+				$html .= '<label for="' . esc_attr( $this->id ) . '-card-number">' . __( 'Card Number', $this->plugin_slug ) . ' <span class="required">*</span></label>';
+				$html .= '<input id="' . esc_attr( $this->id ) . '-card-number" class="input-text wc-credit-card-form-card-number" type="text" maxlength="20" autocomplete="off" placeholder="•••• •••• •••• ••••" name="' . $this->id . '_card_number" />';
+			$html .= '</p>';
+
+			// Credit card expiry.
+			$html .= '<p class="form-row form-row-first">';
+				$html .= '<label for="' . esc_attr( $this->id ) . '-card-expiry">' . __( 'Expiry (MM/YY)', $this->plugin_slug ) . ' <span class="required">*</span></label>';
+				$html .= '<input id="' . esc_attr( $this->id ) . '-card-expiry" class="input-text wc-credit-card-form-card-expiry" type="text" autocomplete="off" placeholder="MM / YY" name="' . $this->id . '_card_expiry" />';
+			$html .= '</p>';
+
+			// Credit card CVC.
+			$html .= '<p class="form-row form-row-last">';
+				$html .= '<label for="' . esc_attr( $this->id ) . '-card-cvc">' . __( 'Card Code', $this->plugin_slug ) . ' <span class="required">*</span></label>';
+				$html .= '<input id="' . esc_attr( $this->id ) . '-card-cvc" class="input-text wc-credit-card-form-card-cvc" type="text" autocomplete="off" placeholder="CVC" name="' . $this->id . '_card_cvc" />';
+			$html .= '</p>';
+
+			// Installments.
+			$html .= '<p class="form-row form-row-wide">';
+				$html .= '<label for="' . esc_attr( $this->id ) . '-installments">' . __( 'Installments', $this->plugin_slug ) . '</label>';
+				$html .= '<select id="' . esc_attr( $this->id ) . '-installments" class="input-text wc-credit-card-form-installments" name="' . $this->id . '_installments">';
+
+					// Get the cart total.
+					$cart_total = $this->woocommerce_instance()->cart->total;
+
+					// Create the installments.
+					for ( $installment = 1; $installment <= 12; $installment++ ) {
+						$installment_value = $cart_total / $installment;
+
+						// Stops if the installment is less than 5.
+						if ( $installment_value <= 5 ) {
+							break;
+						}
+						$html .= '<option value="' . $installment . '">' . sprintf( '%dx of %s', $installment, strip_tags( wc_price( $installment_value ) ) ) . '</option>';
+					}
+				$html .= '</select>';
+			$html .= '</p>';
+
+			$html .= '<div class="clear"></div>';
+		$html .= '</fieldset>';
+
+		echo $html;
+	}
+
 	/**
 	 * Generate the payment data.
 	 *
@@ -253,7 +355,7 @@ class WC_MundiPagg_Gateway extends WC_Payment_Gateway {
 	 */
 	protected function generate_payment_data( $order ) {
 		// Order total in cents.
-		$total = $this->fix_money( (float) $order->order_total );
+		$total = $this->extract_cents( $order->order_total );
 
 		// Order request.
 		$request = array(
@@ -264,7 +366,7 @@ class WC_MundiPagg_Gateway extends WC_Payment_Gateway {
 				'AmountInCentsToConsiderPaid'     => $total,
 				'EmailUpdateToBuyerEnum'          => 'No',
 				'CurrencyIsoEnum'                 => get_woocommerce_currency(),
-				'RequestKey'                      => $this->invoice_prefix . $order->id,
+				// 'RequestKey'                      => 1234,
 				// 'Retries'                      => 0, // Default in one plataform.
 				'Buyer'                           => null,
 				'CreditCardTransactionCollection' => null,
@@ -288,9 +390,9 @@ class WC_MundiPagg_Gateway extends WC_Payment_Gateway {
 			'TaxDocumentNumber'         => '',
 			'TaxDocumentTypeEnum'       => 'CPF', // CPF or CNPJ
 			// 'TwitterId'                 => '',
-			'HomePhone'                 => $this->fix_phone( $order->billing_phone ),
+			'HomePhone'                 => $this->phone_format( $order->billing_phone ),
 			'WorkPhone'                 => '',
-			'MobilePhone'               => isset( $order->billing_cellphone ) ? $this->fix_phone( $order->billing_cellphone ) : '',
+			'MobilePhone'               => isset( $order->billing_cellphone ) ? $this->phone_format( $order->billing_cellphone ) : '',
 			'BuyerAddressCollection'    => array(
 				array(
 					'City'            => $order->billing_city,
@@ -337,15 +439,15 @@ class WC_MundiPagg_Gateway extends WC_Payment_Gateway {
 		}
 
 		// Shop cart.
-		if ( version_compare( WOOCOMMERCE_VERSION, '2.1', '>=' ) ) {
-			$shipping_total = $this->fix_money( $order->get_total_shipping() );
-		} else {
-			$shipping_total = $this->fix_money( $order->get_shipping() );
-		}
-
-		$cart_items = array();
-
 		if ( sizeof( $order->get_items() ) > 0 ) {
+			if ( version_compare( WOOCOMMERCE_VERSION, '2.1', '>=' ) ) {
+				$shipping_total = $this->extract_cents( $order->get_total_shipping() );
+			} else {
+				$shipping_total = $this->extract_cents( $order->get_shipping() );
+			}
+
+			$cart_items = array();
+
 			foreach ( $order->get_items() as $order_item ) {
 				if ( $order_item['qty'] ) {
 					// Get product data.
@@ -383,24 +485,51 @@ class WC_MundiPagg_Gateway extends WC_Payment_Gateway {
 					$item['Description']      = wp_trim_words( sanitize_text_field( $item_description ), 20, '...' );
 					$item['Name']             = substr( sanitize_text_field( $item_name ), 0, 95 );
 					$item['Quantity']         = $order_item['qty'];
-					$item['TotalCostInCents'] = $this->fix_money( $item_total * $order_item['qty'] );
-					$item['UnitCostInCents']  = $this->fix_money( $item_total );
+					$item['TotalCostInCents'] = $this->extract_cents( $item_total * $order_item['qty'] );
+					$item['UnitCostInCents']  = $this->extract_cents( $item_total );
 
 					$cart_items[] = $item;
 				}
 			}
-		}
 
-		$request['createOrderRequest']['ShoppingCartCollection'] = array(
-			'ShoppingCart' => array(
-				array(
-					'FreightCostInCents' => $shipping_total,
-					'ShoppingCartItemCollection' => array(
-						'ShoppingCartItem' => $cart_items
+			$request['createOrderRequest']['ShoppingCartCollection'] = array(
+				'ShoppingCart' => array(
+					array(
+						'FreightCostInCents'         => $shipping_total,
+						'ShoppingCartItemCollection' => array(
+							'ShoppingCartItem'       => $cart_items
+						)
 					)
 				)
-			)
-		);
+			);
+		}
+
+		// Credit card.
+		// if ( isset( $_POST['mundipagg_payment_type'] ) && 'credit-card' == $_POST['mundipagg_payment_type'] ) {
+		if ( isset( $_POST['mundipagg_holder_name'] ) ) {
+			$credit_cards = array();
+
+			$expiry = $this->get_credit_card_expiry_date( sanitize_text_field( $_POST['mundipagg_card_expiry'] ) );
+			$credit_card = array(
+				'AmountInCents'           => $total,
+				'CreditCardNumber'        => sanitize_text_field( $_POST['mundipagg_card_number'] ),
+				'InstallmentCount'        => intval( $_POST['mundipagg_installments'] ),
+				'HolderName'              => sanitize_text_field( $_POST['mundipagg_holder_name'] ),
+				'SecurityCode'            => sanitize_text_field( $_POST['mundipagg_card_cvc'] ),
+				'ExpMonth'                => $expiry['month'],
+				'ExpYear'                 => $expiry['year'],
+				'CreditCardBrandEnum'     => 'Visa',
+				'PaymentMethodCode'       => ( 'yes' == $this->staging ) ? 1 : null,
+				// 'PaymentMethodCode'       => null,
+				'CreditCardOperationEnum' => 'AuthOnly',
+			);
+
+			$credit_cards[] = $credit_card;
+
+			$request['createOrderRequest']['CreditCardTransactionCollection'] = array(
+				'CreditCardTransaction' => $credit_cards
+			);
+		}
 
 		$request = apply_filters( 'woocommerce_mundipagg_payment_data', $request, $order );
 
@@ -412,10 +541,38 @@ class WC_MundiPagg_Gateway extends WC_Payment_Gateway {
 	 *
 	 * @param object $order Order data.
 	 *
-	 * @return bool
+	 * @return array
 	 */
 	public function generate_payment_token( $order ) {
-		return $this->generate_payment_data( $order );
+		$data     = $this->generate_payment_data( $order );
+		$response = array();
+
+		if ( 'yes' == $this->debug ) {
+			$this->log->add( $this->id, 'Requesting payment for order ' . $order->get_order_number() . ' with the following data: ' . print_r( $data, true ) );
+		}
+
+		$soap_opt = array(
+			'encoding'   => 'UTF-8',
+			'trace'      => true,
+			'exceptions' => true,
+			'cache_wsdl' => false,
+		);
+
+		try {
+			$soap          = new SoapClient( $this->api_url, $soap_opt );
+			$soap_response = $soap->CreateOrder( $data );
+			$response[]    = $soap_response;
+
+			if ( 'yes' == $this->debug ) {
+				$this->log->add( $this->id, 'MundiPagg response for the order ' . $order->get_order_number() . ': ' . print_r( $soap_response, true ) );
+			}
+		} catch ( Exception $e ) {
+			if ( 'yes' == $this->debug ) {
+				$this->log->add( $this->id, 'Error while generate the payment for order ' . $order->get_order_number() . ', MundiPagg response: ' . print_r( $e->getMessage(), true ) );
+			}
+		}
+
+		return $response;
 	}
 
 	/**
@@ -426,23 +583,54 @@ class WC_MundiPagg_Gateway extends WC_Payment_Gateway {
 	 * @return array           Redirect.
 	 */
 	public function process_payment( $order_id ) {
-		$order = new WC_Order( $order_id );
-
+		$order    = new WC_Order( $order_id );
 		$response = $this->generate_payment_token( $order );
 
-		error_log( print_r( $response, true ) );
+		if ( ! empty( $response ) ) {
+			$response = $response[0]->CreateOrderResult;
 
-		return array( 'result' => 'fail', 'redirect' => '' );
+			// Processes the errors.
+			if ( 1 != $response->Success ) {
+				if ( isset( $response->ErrorReport->ErrorItemCollection->ErrorItem ) ) {
+					if ( is_array( $response->ErrorReport->ErrorItemCollection->ErrorItem ) ) {
+						foreach ( $response->ErrorReport->ErrorItemCollection->ErrorItem as $error ) {
+							$this->add_error( '<strong>' . __( 'MundiPagg', $this->plugin_slug ) . '</strong>: ' . esc_attr( $error->Description ) );
+						}
+					} else {
+						$this->add_error( '<strong>' . __( 'MundiPagg', $this->plugin_slug ) . '</strong>: ' . esc_attr( $response->ErrorReport->ErrorItemCollection->ErrorItem->Description ) );
+					}
+				} else {
+					$this->add_error( '<strong>' . __( 'MundiPagg', $this->plugin_slug ) . '</strong>: ' . __( 'An error has occurred while processing your payment, please try again. Or contact us for assistance.', $this->plugin_slug ) );
+				}
+			} else {
+				$updated = $this->update_order_status( $response );
 
-		// if ( $response ) {
-		// 	// Remove cart.
-		// 	$this->woocommerce_instance()->cart->empty_cart();
+				if ( $updated ) {
+					// Remove cart.
+					$this->woocommerce_instance()->cart->empty_cart();
 
-		// 	return array(
-		// 		'result'   => 'success',
-		// 		'redirect' => esc_url_raw( $this->payment_url . $token )
-		// 	);
-		// }
+					if ( version_compare( WOOCOMMERCE_VERSION, '2.1', '>=' ) ) {
+						$url = $order->get_checkout_order_received_url();
+					} else {
+						$url = add_query_arg( 'key', $order->order_key, add_query_arg( 'order', $order_id, get_permalink( woocommerce_get_page_id( 'thanks' ) ) ) );
+					}
+
+					// Go to thankyou page.
+					return array(
+						'result'   => 'success',
+						'redirect' => $url
+					);
+				}
+			}
+		} else {
+			$this->add_error( '<strong>' . __( 'MundiPagg', $this->plugin_slug ) . '</strong>: ' . __( 'An error has occurred while processing your payment, please try again. Or contact us for assistance.', $this->plugin_slug ) );
+		}
+
+		// The request failed.
+		return array(
+			'result'   => 'fail',
+			'redirect' => ''
+		);
 	}
 
 	/**
@@ -473,14 +661,63 @@ class WC_MundiPagg_Gateway extends WC_Payment_Gateway {
 	}
 
 	/**
-	 * Successful Payment!
+	 * Update order status!
 	 *
-	 * @param array $posted MundiPagg post data.
+	 * @param  object $data MundiPagg order data.
 	 *
-	 * @return void
+	 * @return bool
 	 */
-	public function successful_request( $posted ) {
+	public function update_order_status( $data ) {
+		$valid = false;
 
+		if ( isset( $data->OrderReference ) ) {
+			$order_id = (int) str_replace( $this->invoice_prefix, '', $data->OrderReference );
+			$order    = new WC_Order( $order_id );
+
+			// Checks whether the invoice number matches the order.
+			// If true processes the payment.
+			if ( $order->id === $order_id ) {
+				update_post_meta( $order->id, 'MundiPagg OrderKey', sanitize_text_field( $data->OrderKey ) );
+				$order_status = sanitize_text_field( $data->OrderStatusEnum );
+
+				// Ref: http://mundipagg.freshdesk.com/support/solutions/articles/175822-status-
+				switch ( $order_status ) {
+					case 'Opened':
+						$order->update_status( 'on-hold', __( 'MundiPagg: This order has transactions that have not yet been fully processed.', $this->plugin_slug ) );
+						$valid = true;
+
+						break;
+					case 'Paid':
+						$order->add_order_note( __( 'MundiPagg: Transaction approved.', $this->plugin_slug ) );
+						$order->payment_complete();
+						$valid = true;
+
+						break;
+					case 'OverPaid':
+						$order->add_order_note( __( 'MundiPagg: This order was paid with a higher value than expected.', $this->plugin_slug ) );
+						$order->payment_complete();
+						$valid = true;
+
+						break;
+					case 'Canceled':
+						$order->update_status( 'cancelled', __( 'MundiPagg: All transactions were canceled.', $this->plugin_slug ) );
+						$valid = true;
+
+						break;
+					case 'PartialPaid':
+						$order->update_status( 'on-hold', __( 'MundiPagg: Only a few transactions have been paid to date.', $this->plugin_slug ) );
+						$valid = true;
+
+						break;
+
+					default:
+						// No action xD.
+						break;
+				}
+			}
+		}
+
+		return $valid;
 	}
 
 	/**
