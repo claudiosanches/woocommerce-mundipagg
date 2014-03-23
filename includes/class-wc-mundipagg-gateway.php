@@ -21,16 +21,27 @@ class WC_MundiPagg_Gateway extends WC_Payment_Gateway {
 		$this->method_title       = __( 'MundiPagg', $this->plugin_slug );
 		$this->method_description = '';
 
+		// API.
+		$this->production_url = 'https://transaction.mundipaggone.com/MundiPaggService.svc?wsdl';
+
 		// Load the form fields.
 		$this->init_form_fields();
 
 		// Load the settings.
 		$this->init_settings();
 
+		// Define user set variables.
+		$this->title          = $this->get_option( 'title' );
+		$this->description    = $this->get_option( 'description' );
+		$this->merchant_key   = $this->get_option( 'merchant_key' );
+		$this->invoice_prefix = $this->get_option( 'invoice_prefix', 'WC-' );
+		$this->staging        = $this->get_option( 'staging' );
+		$this->debug          = $this->get_option( 'debug' );
+
 		// Actions.
 		// add_action( 'woocommerce_api_wc_mundipagg_gateway', array( $this, 'check_ipn_response' ) );
 		// add_action( 'valid_mundipagg_ipn_request', array( $this, 'successful_request' ) );
-		// add_action( 'woocommerce_update_options_payment_gateways_' . $this->id, array( $this, 'process_admin_options' ) );
+		add_action( 'woocommerce_update_options_payment_gateways_' . $this->id, array( $this, 'process_admin_options' ) );
 
 		// Active logs.
 		if ( 'yes' == $this->debug ) {
@@ -66,14 +77,9 @@ class WC_MundiPagg_Gateway extends WC_Payment_Gateway {
 	 */
 	protected function admin_notices() {
 		if ( is_admin() ) {
-			// Checks if email is not empty.
-			if ( empty( $this->email ) ) {
-				add_action( 'admin_notices', array( $this, 'mail_missing_message' ) );
-			}
-
-			// Checks if token is not empty.
-			if ( empty( $this->token ) ) {
-				add_action( 'admin_notices', array( $this, 'token_missing_message' ) );
+			// Checks if merchant_key is not empty.
+			if ( empty( $this->merchant_key ) ) {
+				add_action( 'admin_notices', array( $this, 'merchant_key_missing_message' ) );
 			}
 
 			// Checks that the currency is supported
@@ -89,8 +95,22 @@ class WC_MundiPagg_Gateway extends WC_Payment_Gateway {
 	 * @return bool
 	 */
 	public function using_supported_currency() {
-		return in_array( get_woocommerce_currency(), array( 'BRL' ) );
+		$supported = apply_filters( 'woocommerce_mundipagg_supported_currencies', array(
+			'BRL',
+			'EUR',
+			'USD',
+			'ARS',
+			'BOB',
+			'CLP',
+			'COP',
+			'UYU',
+			'MXN',
+			'PYG'
+		) );
+
+		return in_array( get_woocommerce_currency(), $supported );
 	}
+
 
 	/**
 	 * Returns a value indicating the the Gateway is available or not. It's called
@@ -102,8 +122,7 @@ class WC_MundiPagg_Gateway extends WC_Payment_Gateway {
 	public function is_available() {
 		// Test if is valid for use.
 		$available = ( 'yes' == $this->settings['enabled'] ) &&
-					! empty( $this->email ) &&
-					! empty( $this->token ) &&
+					! empty( $this->merchant_key ) &&
 					$this->using_supported_currency();
 
 		return $available;
@@ -115,7 +134,60 @@ class WC_MundiPagg_Gateway extends WC_Payment_Gateway {
 	 * @return void
 	 */
 	public function init_form_fields() {
-
+		$this->form_fields = array(
+			'enabled' => array(
+				'title'   => __( 'Enable/Disable', $this->plugin_slug ),
+				'type'    => 'checkbox',
+				'label'   => __( 'Enable MundiPagg gateway', $this->plugin_slug ),
+				'default' => 'yes'
+			),
+			'title' => array(
+				'title'       => __( 'Title', $this->plugin_slug ),
+				'type'        => 'text',
+				'description' => __( 'This controls the title which the user sees during checkout.', $this->plugin_slug ),
+				'desc_tip'    => true,
+				'default'     => __( 'Credit Cart', $this->plugin_slug )
+			),
+			'description' => array(
+				'title'       => __( 'Description', $this->plugin_slug ),
+				'type'        => 'textarea',
+				'description' => __( 'This controls the description which the user sees during checkout.', $this->plugin_slug ),
+				'default'     => __( 'Pay with credit cart or billet via MundiPagg', $this->plugin_slug )
+			),
+			'merchant_key' => array(
+				'title'       => __( 'MundiPagg Merchant Key', $this->plugin_slug ),
+				'type'        => 'text',
+				'description' => __( 'Please enter your MundiPagg Merchant Key address. This is needed in order to take payment.', $this->plugin_slug ),
+				'desc_tip'    => true,
+				'default'     => ''
+			),
+			'invoice_prefix' => array(
+				'title'       => __( 'Invoice Prefix', $this->plugin_slug ),
+				'type'        => 'text',
+				'description' => __( 'Please enter a prefix for your invoice numbers. If you use your MundiPagg account for multiple stores ensure this prefix is unqiue as MundiPagg will not allow orders with the same invoice number.', $this->plugin_slug ),
+				'desc_tip'    => true,
+				'default'     => 'WC-'
+			),
+			'testing' => array(
+				'title'       => __( 'Gateway Testing', $this->plugin_slug ),
+				'type'        => 'title',
+				'description' => ''
+			),
+			'staging' => array(
+				'title'       => __( 'Staging Environment', $this->plugin_slug ),
+				'type'        => 'checkbox',
+				'label'       => __( 'Enable Staging Environment', $this->plugin_slug ),
+				'default'     => 'yes',
+				'description' => __( 'Disable this option when the plugin was used for the production environment.', $this->plugin_slug )
+			),
+			'debug' => array(
+				'title'       => __( 'Debug Log', $this->plugin_slug ),
+				'type'        => 'checkbox',
+				'label'       => __( 'Enable logging', $this->plugin_slug ),
+				'default'     => 'no',
+				'description' => sprintf( __( 'Log MundiPagg events, such as API requests, inside %s', $this->plugin_slug ), '<code>woocommerce/logs/' . esc_attr( $this->id ) . '-' . sanitize_file_name( wp_hash( $this->id ) ) . '.txt</code>' )
+			)
+		);
 	}
 
 	/**
@@ -215,21 +287,12 @@ class WC_MundiPagg_Gateway extends WC_Payment_Gateway {
 	}
 
 	/**
-	 * Adds error message when not configured the email.
+	 * Adds error message when not configured the Merchant Key.
 	 *
 	 * @return string Error Mensage.
 	 */
-	public function mail_missing_message() {
-		echo '<div class="error"><p><strong>' . __( 'MundiPagg Disabled', $this->plugin_slug ) . '</strong>: ' . sprintf( __( 'You should inform your email address. %s', $this->plugin_slug ), '<a href="' . $this->admin_url() . '">' . __( 'Click here to configure!', $this->plugin_slug ) . '</a>' ) . '</p></div>';
-	}
-
-	/**
-	 * Adds error message when not configured the token.
-	 *
-	 * @return string Error Mensage.
-	 */
-	public function token_missing_message() {
-		echo '<div class="error"><p><strong>' . __( 'MundiPagg Disabled', $this->plugin_slug ) . '</strong>: ' . sprintf( __( 'You should inform your token. %s', $this->plugin_slug ), '<a href="' . $this->admin_url() . '">' . __( 'Click here to configure!', $this->plugin_slug ) . '</a>' ) . '</p></div>';
+	public function merchant_key_missing_message() {
+		echo '<div class="error"><p><strong>' . __( 'MundiPagg Disabled', $this->plugin_slug ) . '</strong>: ' . sprintf( __( 'You should inform your Merchant Key address. %s', $this->plugin_slug ), '<a href="' . $this->admin_url() . '">' . __( 'Click here to configure!', $this->plugin_slug ) . '</a>' ) . '</p></div>';
 	}
 
 	/**
