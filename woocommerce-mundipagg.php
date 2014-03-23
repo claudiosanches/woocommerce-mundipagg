@@ -128,7 +128,7 @@ class WC_MundiPagg {
 	 */
 	protected function init() {
 		// Checks with WooCommerce is installed.
-		if ( class_exists( 'WC_Payment_Gateway' ) ) {
+		if ( class_exists( 'WC_Payment_Gateway' ) && class_exists( 'Extra_Checkout_Fields_For_Brazil' ) ) {
 			// Include the WC_MundiPagg_Gateway class.
 			include_once 'includes/class-wc-mundipagg-gateway.php';
 
@@ -161,7 +161,12 @@ class WC_MundiPagg {
 	 * @return  string
 	 */
 	public function woocommerce_missing_notice() {
-		echo '<div class="error"><p>' . sprintf( __( 'WooCommerce MundiPagg Gateway depends on the last version of %s to work!', self::$plugin_slug ), '<a href="http://wordpress.org/extend/plugins/woocommerce/">' . __( 'WooCommerce', self::$plugin_slug ) . '</a>' ) . '</p></div>';
+		echo '<div class="error"><p>' . sprintf(
+			__( '%s depends on the last version of the %s and the %s to work!', self::$plugin_slug ),
+			'<strong>' . __( 'WooCommerce MundiPagg Gateway', self::$plugin_slug ) . '</strong>',
+			'<a href="http://wordpress.org/extend/plugins/woocommerce/">' . __( 'WooCommerce', self::$plugin_slug ) . '</a>',
+			'<a href="http://wordpress.org/plugins/woocommerce-extra-checkout-fields-for-brazil/">' . __( 'WooCommerce Extra Checkout Fields for Brazil', self::$plugin_slug ) . '</a>'
+		) . '</p></div>';
 	}
 }
 
