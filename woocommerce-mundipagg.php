@@ -36,7 +36,10 @@ class WC_MundiPagg {
 	 */
 	protected static $instance = null;
 
-	public function __construct() {
+	/**
+	 * Initialize the plugin actions.
+	 */
+	private function __construct() {
 		// Load plugin text domain
 		add_action( 'init', array( $this, 'load_plugin_textdomain' ) );
 
@@ -112,7 +115,7 @@ class WC_MundiPagg {
 	 */
 	public function load_scripts() {
 		if ( is_checkout() ) {
-			wp_enqueue_script( 'mundipagg-payment', plugins_url( 'assets/js/frontend/payment.js', __FILE__ ), array( 'jquery', 'jquery-payment' ), self::VERSION, true );
+			// wp_enqueue_script( 'mundipagg-payment', plugins_url( 'assets/js/frontend/payment.js', __FILE__ ), array( 'jquery', 'jquery-payment' ), self::VERSION, true );
 			wp_enqueue_style( 'mundipagg-payment', plugins_url( 'assets/css/frontend/payment.css', __FILE__ ), array(), self::VERSION, 'all' );
 		}
 	}
