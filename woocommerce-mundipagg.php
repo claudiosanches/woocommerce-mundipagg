@@ -25,36 +25,14 @@ class WC_MundiPagg {
 	/**
 	 * Plugin version.
 	 *
-	 * @since 1.0.0
-	 *
-	 * @var   string
+	 * @var string
 	 */
 	const VERSION = '1.0.0';
 
 	/**
-	 * Integration id.
-	 *
-	 * @since 1.0.0
-	 *
-	 * @var   string
-	 */
-	protected static $gateway_id = 'mundipagg';
-
-	/**
-	 * Plugin slug.
-	 *
-	 * @since 1.0.0
-	 *
-	 * @var   string
-	 */
-	protected static $plugin_slug = 'woocommerce-mundipagg';
-
-	/**
 	 * Instance of this class.
 	 *
-	 * @since 1.0.0
-	 *
-	 * @var   object
+	 * @var object
 	 */
 	protected static $instance = null;
 
@@ -69,8 +47,6 @@ class WC_MundiPagg {
 	/**
 	 * Return an instance of this class.
 	 *
-	 * @since  1.0.0
-	 *
 	 * @return object A single instance of this class.
 	 */
 	public static function get_instance() {
@@ -83,46 +59,19 @@ class WC_MundiPagg {
 	}
 
 	/**
-	 * Return the plugin slug.
-	 *
-	 * @since  1.0.0
-	 *
-	 * @return string Plugin slug variable.
-	 */
-	public static function get_plugin_slug() {
-		return self::$plugin_slug;
-	}
-
-	/**
-	 * Return the gateway id/slug.
-	 *
-	 * @since  1.0.0
-	 *
-	 * @return string Gateway id/slug variable.
-	 */
-	public static function get_gateway_id() {
-		return self::$gateway_id;
-	}
-
-	/**
 	 * Load the plugin text domain for translation.
-	 *
-	 * @since  1.0.0
 	 *
 	 * @return void
 	 */
 	public function load_plugin_textdomain() {
-		$domain = self::$plugin_slug;
-		$locale = apply_filters( 'plugin_locale', get_locale(), $domain );
+		$locale = apply_filters( 'plugin_locale', get_locale(), 'woocommerce-mundipagg' );
 
-		load_textdomain( $domain, trailingslashit( WP_LANG_DIR ) . $domain . '/' . $domain . '-' . $locale . '.mo' );
-		load_plugin_textdomain( $domain, false, dirname( plugin_basename( __FILE__ ) ) . '/languages/' );
+		load_textdomain( 'woocommerce-mundipagg', trailingslashit( WP_LANG_DIR ) . 'woocommerce-mundipagg/woocommerce-mundipagg-' . $locale . '.mo' );
+		load_plugin_textdomain( 'woocommerce-mundipagg', false, dirname( plugin_basename( __FILE__ ) ) . '/languages/' );
 	}
 
 	/**
 	 * Initialize the plugin public actions.
-	 *
-	 * @since  1.0.0
 	 *
 	 * @return  void
 	 */
@@ -146,11 +95,9 @@ class WC_MundiPagg {
 	/**
 	 * Add the gateway to WooCommerce.
 	 *
-	 * @version 1.0.0
+	 * @param  array $methods WooCommerce payment methods.
 	 *
-	 * @param   array $methods WooCommerce payment methods.
-	 *
-	 * @return  array          Payment methods with MundiPagg.
+	 * @return array          Payment methods with MundiPagg.
 	 */
 	public function add_gateway( $methods ) {
 		$methods[] = 'WC_MundiPagg_Gateway';
@@ -173,30 +120,26 @@ class WC_MundiPagg {
 	/**
 	 * WooCommerce fallback notice.
 	 *
-	 * @version 1.0.0
-	 *
-	 * @return  string
+	 * @return string
 	 */
 	public function woocommerce_missing_notice() {
 		echo '<div class="error"><p>' . sprintf(
-			__( '%s depends on the last version of the %s and the %s to work!', self::$plugin_slug ),
-			'<strong>' . __( 'WooCommerce MundiPagg Gateway', self::$plugin_slug ) . '</strong>',
-			'<a href="http://wordpress.org/extend/plugins/woocommerce/">' . __( 'WooCommerce', self::$plugin_slug ) . '</a>',
-			'<a href="http://wordpress.org/plugins/woocommerce-extra-checkout-fields-for-brazil/">' . __( 'WooCommerce Extra Checkout Fields for Brazil', self::$plugin_slug ) . '</a>'
+			__( '%s depends on the last version of the %s and the %s to work!', 'woocommerce-mundipagg' ),
+			'<strong>' . __( 'WooCommerce MundiPagg Gateway', 'woocommerce-mundipagg' ) . '</strong>',
+			'<a href="http://wordpress.org/extend/plugins/woocommerce/">' . __( 'WooCommerce', 'woocommerce-mundipagg' ) . '</a>',
+			'<a href="http://wordpress.org/plugins/woocommerce-extra-checkout-fields-for-brazil/">' . __( 'WooCommerce Extra Checkout Fields for Brazil', 'woocommerce-mundipagg' ) . '</a>'
 		) . '</p></div>';
 	}
 
 	/**
 	 * Soap fallback notice.
 	 *
-	 * @version 1.0.0
-	 *
-	 * @return  string
+	 * @return string
 	 */
 	public function soap_missing_notice() {
 		echo '<div class="error"><p>' . sprintf(
-			__( '%s needs to have installed on your server the SOAP module to works!', self::$plugin_slug ),
-			'<strong>' . __( 'WooCommerce MundiPagg Gateway', self::$plugin_slug ) . '</strong>'
+			__( '%s needs to have installed on your server the SOAP module to works!', 'woocommerce-mundipagg' ),
+			'<strong>' . __( 'WooCommerce MundiPagg Gateway', 'woocommerce-mundipagg' ) . '</strong>'
 		) . '</p></div>';
 	}
 }

@@ -3,8 +3,6 @@
  * WC MundiPagg Gateway Class.
  *
  * Built the MundiPagg method.
- *
- * @since 2.2.1
  */
 class WC_MundiPagg_Gateway extends WC_Payment_Gateway {
 
@@ -14,11 +12,10 @@ class WC_MundiPagg_Gateway extends WC_Payment_Gateway {
 	 * @return void
 	 */
 	public function __construct() {
-		$this->id                 = WC_MundiPagg::get_gateway_id();
-		$this->plugin_slug        = WC_MundiPagg::get_plugin_slug();
+		$this->id                 = 'mundipagg';
 		$this->icon               = '';
 		$this->has_fields         = true;
-		$this->method_title       = __( 'MundiPagg', $this->plugin_slug );
+		$this->method_title       = __( 'MundiPagg', 'woocommerce-mundipagg' );
 		$this->method_description = '';
 
 		// API.
@@ -135,56 +132,56 @@ class WC_MundiPagg_Gateway extends WC_Payment_Gateway {
 	public function init_form_fields() {
 		$this->form_fields = array(
 			'enabled' => array(
-				'title'   => __( 'Enable/Disable', $this->plugin_slug ),
+				'title'   => __( 'Enable/Disable', 'woocommerce-mundipagg' ),
 				'type'    => 'checkbox',
-				'label'   => __( 'Enable MundiPagg gateway', $this->plugin_slug ),
+				'label'   => __( 'Enable MundiPagg gateway', 'woocommerce-mundipagg' ),
 				'default' => 'yes'
 			),
 			'title' => array(
-				'title'       => __( 'Title', $this->plugin_slug ),
+				'title'       => __( 'Title', 'woocommerce-mundipagg' ),
 				'type'        => 'text',
-				'description' => __( 'This controls the title which the user sees during checkout.', $this->plugin_slug ),
+				'description' => __( 'This controls the title which the user sees during checkout.', 'woocommerce-mundipagg' ),
 				'desc_tip'    => true,
-				'default'     => __( 'MundiPagg', $this->plugin_slug )
+				'default'     => __( 'MundiPagg', 'woocommerce-mundipagg' )
 			),
 			'description' => array(
-				'title'       => __( 'Description', $this->plugin_slug ),
+				'title'       => __( 'Description', 'woocommerce-mundipagg' ),
 				'type'        => 'textarea',
-				'description' => __( 'This controls the description which the user sees during checkout.', $this->plugin_slug ),
-				'default'     => __( 'Pay with credit cart or billet via MundiPagg', $this->plugin_slug )
+				'description' => __( 'This controls the description which the user sees during checkout.', 'woocommerce-mundipagg' ),
+				'default'     => __( 'Pay with credit cart or billet via MundiPagg', 'woocommerce-mundipagg' )
 			),
 			'merchant_key' => array(
-				'title'       => __( 'MundiPagg Merchant Key', $this->plugin_slug ),
+				'title'       => __( 'MundiPagg Merchant Key', 'woocommerce-mundipagg' ),
 				'type'        => 'text',
-				'description' => __( 'Please enter your MundiPagg Merchant Key address. This is needed in order to take payment.', $this->plugin_slug ),
+				'description' => __( 'Please enter your MundiPagg Merchant Key address. This is needed in order to take payment.', 'woocommerce-mundipagg' ),
 				'desc_tip'    => true,
 				'default'     => ''
 			),
 			'invoice_prefix' => array(
-				'title'       => __( 'Invoice Prefix', $this->plugin_slug ),
+				'title'       => __( 'Invoice Prefix', 'woocommerce-mundipagg' ),
 				'type'        => 'text',
-				'description' => __( 'Please enter a prefix for your invoice numbers. If you use your MundiPagg account for multiple stores ensure this prefix is unqiue as MundiPagg will not allow orders with the same invoice number.', $this->plugin_slug ),
+				'description' => __( 'Please enter a prefix for your invoice numbers. If you use your MundiPagg account for multiple stores ensure this prefix is unqiue as MundiPagg will not allow orders with the same invoice number.', 'woocommerce-mundipagg' ),
 				'desc_tip'    => true,
 				'default'     => 'WC-'
 			),
 			'testing' => array(
-				'title'       => __( 'Gateway Testing', $this->plugin_slug ),
+				'title'       => __( 'Gateway Testing', 'woocommerce-mundipagg' ),
 				'type'        => 'title',
 				'description' => ''
 			),
 			'staging' => array(
-				'title'       => __( 'Staging Environment', $this->plugin_slug ),
+				'title'       => __( 'Staging Environment', 'woocommerce-mundipagg' ),
 				'type'        => 'checkbox',
-				'label'       => __( 'Enable Staging Environment', $this->plugin_slug ),
+				'label'       => __( 'Enable Staging Environment', 'woocommerce-mundipagg' ),
 				'default'     => 'yes',
-				'description' => __( 'Disable this option when the plugin was used for the production environment.', $this->plugin_slug )
+				'description' => __( 'Disable this option when the plugin was used for the production environment.', 'woocommerce-mundipagg' )
 			),
 			'debug' => array(
-				'title'       => __( 'Debug Log', $this->plugin_slug ),
+				'title'       => __( 'Debug Log', 'woocommerce-mundipagg' ),
 				'type'        => 'checkbox',
-				'label'       => __( 'Enable logging', $this->plugin_slug ),
+				'label'       => __( 'Enable logging', 'woocommerce-mundipagg' ),
 				'default'     => 'no',
-				'description' => sprintf( __( 'Log MundiPagg events, such as API requests, inside %s', $this->plugin_slug ), '<code>woocommerce/logs/' . esc_attr( $this->id ) . '-' . sanitize_file_name( wp_hash( $this->id ) ) . '.txt</code>' )
+				'description' => sprintf( __( 'Log MundiPagg events, such as API requests, inside %s', 'woocommerce-mundipagg' ), '<code>woocommerce/logs/' . esc_attr( $this->id ) . '-' . sanitize_file_name( wp_hash( $this->id ) ) . '.txt</code>' )
 			)
 		);
 	}
@@ -198,7 +195,7 @@ class WC_MundiPagg_Gateway extends WC_Payment_Gateway {
 	 */
 	protected function add_error( $message ) {
 		if ( version_compare( WOOCOMMERCE_VERSION, '2.1', '>=' ) ) {
-			wc_add_notice( $message, 'error' );
+
 		} else {
 			$this->woocommerce_instance()->add_error( $message );
 		}
@@ -254,12 +251,12 @@ class WC_MundiPagg_Gateway extends WC_Payment_Gateway {
 
 	protected function get_credit_cards() {
 		$cards = apply_filters( 'woocommerce_mundipagg_availables_credit_cards', array(
-			'Visa'        => __( 'Visa', $this->plugin_slug ),
-			'Mastercard'  => __( 'MasterCard', $this->plugin_slug ),
-			'Hipercard'   => __( 'Hipercard', $this->plugin_slug ),
-			'Amex'        => __( 'Amex', $this->plugin_slug ),
-			'Diners'      => __( 'Diners', $this->plugin_slug ),
-			'Elo'         => __( 'Elo', $this->plugin_slug )
+			'Visa'        => __( 'Visa', 'woocommerce-mundipagg' ),
+			'Mastercard'  => __( 'MasterCard', 'woocommerce-mundipagg' ),
+			'Hipercard'   => __( 'Hipercard', 'woocommerce-mundipagg' ),
+			'Amex'        => __( 'Amex', 'woocommerce-mundipagg' ),
+			'Diners'      => __( 'Diners', 'woocommerce-mundipagg' ),
+			'Elo'         => __( 'Elo', 'woocommerce-mundipagg' )
 		) );
 
 		return $cards;
@@ -297,31 +294,31 @@ class WC_MundiPagg_Gateway extends WC_Payment_Gateway {
 
 			// Credit card holder name.
 			$html .= '<p class="form-row form-row-wide">';
-				$html .= '<label for="' . esc_attr( $this->id ) . '-holder-name">' . __( 'Holder Name', $this->plugin_slug ) . ' <span class="required">*</span></label>';
+				$html .= '<label for="' . esc_attr( $this->id ) . '-holder-name">' . __( 'Holder Name', 'woocommerce-mundipagg' ) . ' <span class="required">*</span></label>';
 				$html .= '<input id="' . esc_attr( $this->id ) . '-holder-name" class="input-text wc-credit-card-form-holder-name" type="text" autocomplete="off" name="' . $this->id . '_holder_name" />';
 			$html .= '</p>';
 
 			// Credit card number.
 			$html .= '<p class="form-row form-row-wide">';
-				$html .= '<label for="' . esc_attr( $this->id ) . '-card-number">' . __( 'Card Number', $this->plugin_slug ) . ' <span class="required">*</span></label>';
+				$html .= '<label for="' . esc_attr( $this->id ) . '-card-number">' . __( 'Card Number', 'woocommerce-mundipagg' ) . ' <span class="required">*</span></label>';
 				$html .= '<input id="' . esc_attr( $this->id ) . '-card-number" class="input-text wc-credit-card-form-card-number" type="text" maxlength="20" autocomplete="off" placeholder="•••• •••• •••• ••••" name="' . $this->id . '_card_number" />';
 			$html .= '</p>';
 
 			// Credit card expiry.
 			$html .= '<p class="form-row form-row-first">';
-				$html .= '<label for="' . esc_attr( $this->id ) . '-card-expiry">' . __( 'Expiry (MM/YY)', $this->plugin_slug ) . ' <span class="required">*</span></label>';
+				$html .= '<label for="' . esc_attr( $this->id ) . '-card-expiry">' . __( 'Expiry (MM/YY)', 'woocommerce-mundipagg' ) . ' <span class="required">*</span></label>';
 				$html .= '<input id="' . esc_attr( $this->id ) . '-card-expiry" class="input-text wc-credit-card-form-card-expiry" type="text" autocomplete="off" placeholder="MM / YY" name="' . $this->id . '_card_expiry" />';
 			$html .= '</p>';
 
 			// Credit card CVC.
 			$html .= '<p class="form-row form-row-last">';
-				$html .= '<label for="' . esc_attr( $this->id ) . '-card-cvc">' . __( 'Card Code', $this->plugin_slug ) . ' <span class="required">*</span></label>';
+				$html .= '<label for="' . esc_attr( $this->id ) . '-card-cvc">' . __( 'Card Code', 'woocommerce-mundipagg' ) . ' <span class="required">*</span></label>';
 				$html .= '<input id="' . esc_attr( $this->id ) . '-card-cvc" class="input-text wc-credit-card-form-card-cvc" type="text" autocomplete="off" placeholder="CVC" name="' . $this->id . '_card_cvc" />';
 			$html .= '</p>';
 
 			// Installments.
 			$html .= '<p class="form-row form-row-wide">';
-				$html .= '<label for="' . esc_attr( $this->id ) . '-installments">' . __( 'Installments', $this->plugin_slug ) . '</label>';
+				$html .= '<label for="' . esc_attr( $this->id ) . '-installments">' . __( 'Installments', 'woocommerce-mundipagg' ) . '</label>';
 				$html .= '<select id="' . esc_attr( $this->id ) . '-installments" class="input-text wc-credit-card-form-installments" name="' . $this->id . '_installments">';
 
 					// Get the cart total.
@@ -583,7 +580,7 @@ class WC_MundiPagg_Gateway extends WC_Payment_Gateway {
 	 * @return array           Redirect.
 	 */
 	public function process_payment( $order_id ) {
-		$order    = new WC_Order( $order_id );
+		$order    = wc_get_order( $order_id );
 		$response = $this->generate_payment_token( $order );
 
 		if ( ! empty( $response ) ) {
@@ -594,13 +591,13 @@ class WC_MundiPagg_Gateway extends WC_Payment_Gateway {
 				if ( isset( $response->ErrorReport->ErrorItemCollection->ErrorItem ) ) {
 					if ( is_array( $response->ErrorReport->ErrorItemCollection->ErrorItem ) ) {
 						foreach ( $response->ErrorReport->ErrorItemCollection->ErrorItem as $error ) {
-							$this->add_error( '<strong>' . __( 'MundiPagg', $this->plugin_slug ) . '</strong>: ' . esc_attr( $error->Description ) );
+							$this->add_error( '<strong>' . __( 'MundiPagg', 'woocommerce-mundipagg' ) . '</strong>: ' . esc_attr( $error->Description ) );
 						}
 					} else {
-						$this->add_error( '<strong>' . __( 'MundiPagg', $this->plugin_slug ) . '</strong>: ' . esc_attr( $response->ErrorReport->ErrorItemCollection->ErrorItem->Description ) );
+						$this->add_error( '<strong>' . __( 'MundiPagg', 'woocommerce-mundipagg' ) . '</strong>: ' . esc_attr( $response->ErrorReport->ErrorItemCollection->ErrorItem->Description ) );
 					}
 				} else {
-					$this->add_error( '<strong>' . __( 'MundiPagg', $this->plugin_slug ) . '</strong>: ' . __( 'An error has occurred while processing your payment, please try again. Or contact us for assistance.', $this->plugin_slug ) );
+					$this->add_error( '<strong>' . __( 'MundiPagg', 'woocommerce-mundipagg' ) . '</strong>: ' . __( 'An error has occurred while processing your payment, please try again. Or contact us for assistance.', 'woocommerce-mundipagg' ) );
 				}
 			} else {
 				$updated = $this->update_order_status( $response );
@@ -610,7 +607,7 @@ class WC_MundiPagg_Gateway extends WC_Payment_Gateway {
 					$this->woocommerce_instance()->cart->empty_cart();
 
 					if ( version_compare( WOOCOMMERCE_VERSION, '2.1', '>=' ) ) {
-						$url = $order->get_checkout_order_received_url();
+						$url = ;
 					} else {
 						$url = add_query_arg( 'key', $order->order_key, add_query_arg( 'order', $order_id, get_permalink( woocommerce_get_page_id( 'thanks' ) ) ) );
 					}
@@ -618,12 +615,12 @@ class WC_MundiPagg_Gateway extends WC_Payment_Gateway {
 					// Go to thankyou page.
 					return array(
 						'result'   => 'success',
-						'redirect' => $url
+						'redirect' => $order->get_checkout_order_received_url()
 					);
 				}
 			}
 		} else {
-			$this->add_error( '<strong>' . __( 'MundiPagg', $this->plugin_slug ) . '</strong>: ' . __( 'An error has occurred while processing your payment, please try again. Or contact us for assistance.', $this->plugin_slug ) );
+			$this->add_error( '<strong>' . __( 'MundiPagg', 'woocommerce-mundipagg' ) . '</strong>: ' . __( 'An error has occurred while processing your payment, please try again. Or contact us for assistance.', 'woocommerce-mundipagg' ) );
 		}
 
 		// The request failed.
@@ -656,7 +653,7 @@ class WC_MundiPagg_Gateway extends WC_Payment_Gateway {
 			header( 'HTTP/1.1 200 OK' );
 			do_action( 'valid_mundipagg_ipn_request', $ipn );
 		} else {
-			wp_die( __( 'MundiPagg Request Failure', $this->plugin_slug ) );
+			wp_die( __( 'MundiPagg Request Failure', 'woocommerce-mundipagg' ) );
 		}
 	}
 
@@ -672,7 +669,7 @@ class WC_MundiPagg_Gateway extends WC_Payment_Gateway {
 
 		if ( isset( $data->OrderReference ) ) {
 			$order_id = (int) str_replace( $this->invoice_prefix, '', $data->OrderReference );
-			$order    = new WC_Order( $order_id );
+			$order    = wc_get_order( $order_id );
 
 			// Checks whether the invoice number matches the order.
 			// If true processes the payment.
@@ -683,7 +680,7 @@ class WC_MundiPagg_Gateway extends WC_Payment_Gateway {
 				// Ref: http://mundipagg.freshdesk.com/support/solutions/articles/175822-status-
 				switch ( $order_status ) {
 					case 'Opened':
-						$order->update_status( 'on-hold', __( 'MundiPagg: This order has transactions that have not yet been fully processed.', $this->plugin_slug ) );
+						$order->update_status( 'on-hold', __( 'MundiPagg: This order has transactions that have not yet been fully processed.', 'woocommerce-mundipagg' ) );
 						$valid = true;
 
 						break;
@@ -691,10 +688,10 @@ class WC_MundiPagg_Gateway extends WC_Payment_Gateway {
 					case 'Paid':
 					case 'Overpaid':
 					case 'OverPaid':
-						$order->add_order_note( __( 'MundiPagg: Transaction approved.', $this->plugin_slug ) );
+						$order->add_order_note( __( 'MundiPagg: Transaction approved.', 'woocommerce-mundipagg' ) );
 
 						if ( in_array( $order_status, array( 'Overpaid', 'OverPaid' ) ) ) {
-							$order->add_order_note( __( 'MundiPagg: This order was paid with a higher value than expected.', $this->plugin_slug ) );
+							$order->add_order_note( __( 'MundiPagg: This order was paid with a higher value than expected.', 'woocommerce-mundipagg' ) );
 						}
 
 						$order->payment_complete();
@@ -703,7 +700,7 @@ class WC_MundiPagg_Gateway extends WC_Payment_Gateway {
 
 						break;
 					case 'Canceled':
-						$order->update_status( 'cancelled', __( 'MundiPagg: All transactions were canceled.', $this->plugin_slug ) );
+						$order->update_status( 'cancelled', __( 'MundiPagg: All transactions were canceled.', 'woocommerce-mundipagg' ) );
 						$valid = true;
 
 						break;
@@ -711,7 +708,7 @@ class WC_MundiPagg_Gateway extends WC_Payment_Gateway {
 					case 'Partialpaid':
 					case 'UnderPaid':
 					case 'Underpaid':
-						$order->update_status( 'on-hold', __( 'MundiPagg: Only a few transactions have been paid to date.', $this->plugin_slug ) );
+						$order->update_status( 'on-hold', __( 'MundiPagg: Only a few transactions have been paid to date.', 'woocommerce-mundipagg' ) );
 						$valid = true;
 
 						break;
@@ -727,25 +724,12 @@ class WC_MundiPagg_Gateway extends WC_Payment_Gateway {
 	}
 
 	/**
-	 * Gets the admin url.
-	 *
-	 * @return string
-	 */
-	protected function admin_url() {
-		if ( version_compare( WOOCOMMERCE_VERSION, '2.1', '>=' ) ) {
-			return admin_url( 'admin.php?page=wc-settings&tab=checkout&section=wc_mundipagg_gateway' );
-		}
-
-		return admin_url( 'admin.php?page=woocommerce_settings&tab=payment_gateways&section=WC_MundiPagg_Gateway' );
-	}
-
-	/**
 	 * Adds error message when not configured the Merchant Key.
 	 *
 	 * @return string Error Mensage.
 	 */
 	public function merchant_key_missing_message() {
-		echo '<div class="error"><p><strong>' . __( 'MundiPagg Disabled', $this->plugin_slug ) . '</strong>: ' . sprintf( __( 'You should inform your Merchant Key address. %s', $this->plugin_slug ), '<a href="' . $this->admin_url() . '">' . __( 'Click here to configure!', $this->plugin_slug ) . '</a>' ) . '</p></div>';
+		echo '<div class="error"><p><strong>' . __( 'MundiPagg Disabled', 'woocommerce-mundipagg' ) . '</strong>: ' . sprintf( __( 'You should inform your Merchant Key address. %s', 'woocommerce-mundipagg' ), '<a href="admin.php?page=wc-settings&tab=checkout&section=wc_mundipagg_gateway">' . __( 'Click here to configure!', 'woocommerce-mundipagg' ) . '</a>' ) . '</p></div>';
 	}
 
 	/**
@@ -754,7 +738,7 @@ class WC_MundiPagg_Gateway extends WC_Payment_Gateway {
 	 * @return string
 	 */
 	public function currency_not_supported_message() {
-		echo '<div class="error"><p><strong>' . __( 'MundiPagg Disabled', $this->plugin_slug ) . '</strong>: ' . sprintf( __( 'Currency <code>%s</code> is not supported. Works only with Brazilian Real.', $this->plugin_slug ), get_woocommerce_currency() ) . '</p></div>';
+		echo '<div class="error"><p><strong>' . __( 'MundiPagg Disabled', 'woocommerce-mundipagg' ) . '</strong>: ' . sprintf( __( 'Currency <code>%s</code> is not supported. Works only with Brazilian Real.', 'woocommerce-mundipagg' ), get_woocommerce_currency() ) . '</p></div>';
 	}
 
 }
