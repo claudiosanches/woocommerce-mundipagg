@@ -69,25 +69,34 @@ class WC_MundiPagg_Gateway extends WC_Payment_Gateway {
 	}
 
 	/**
+	 * Get the supported currencies.
+	 *
+	 * @return array
+	 */
+	public function get_supported_currencies() {
+		return apply_filters( 'woocommerce_mundipagg_supported_currencies', array(
+			'ARS',
+			'BOB',
+			'BRL',
+			'CLP',
+			'COP',
+			'MXN',
+			'PYG',
+			'UYU',
+			'EUR',
+			'USD'
+		) );
+	}
+
+
+
+	/**
 	 * Returns a bool that indicates if currency is amongst the supported ones.
 	 *
 	 * @return bool
 	 */
 	public function using_supported_currency() {
-		$supported = apply_filters( 'woocommerce_mundipagg_supported_currencies', array(
-			'BRL',
-			'EUR',
-			'USD',
-			'ARS',
-			'BOB',
-			'CLP',
-			'COP',
-			'UYU',
-			'MXN',
-			'PYG'
-		) );
-
-		return in_array( get_woocommerce_currency(), $supported );
+		return in_array( get_woocommerce_currency(), $this->get_supported_currencies() );
 	}
 
 	/**
@@ -161,7 +170,7 @@ class WC_MundiPagg_Gateway extends WC_Payment_Gateway {
 				'type'        => 'checkbox',
 				'label'       => __( 'Enable logging', 'woocommerce-mundipagg' ),
 				'default'     => 'no',
-				'description' => sprintf( __( 'Log MundiPagg events, such as API requests, inside %s', 'woocommerce-mundipagg' ), '<code>woocommerce/logs/' . esc_attr( $this->id ) . '-' . sanitize_file_name( wp_hash( $this->id ) ) . '.txt</code>' )
+				'description' => __( 'Log MundiPagg events, such as API requests.', 'woocommerce-mundipagg' )
 			)
 		);
 	}
@@ -719,7 +728,7 @@ class WC_MundiPagg_Gateway extends WC_Payment_Gateway {
 	 * @return string Error Mensage.
 	 */
 	public function merchant_key_missing_message() {
-		echo '<div class="error"><p><strong>' . __( 'MundiPagg Disabled', 'woocommerce-mundipagg' ) . '</strong>: ' . sprintf( __( 'You should inform your Merchant Key address. %s', 'woocommerce-mundipagg' ), '<a href="admin.php?page=wc-settings&tab=checkout&section=wc_mundipagg_gateway">' . __( 'Click here to configure!', 'woocommerce-mundipagg' ) . '</a>' ) . '</p></div>';
+		echo '<div class="error"><p><strong>' . __( 'MundiPagg Disabled', 'woocommerce-mundipagg' ) . '</strong>: ' . sprintf( __( 'You should inform your Merchant Key. %s', 'woocommerce-mundipagg' ), '<a href="admin.php?page=wc-settings&tab=checkout&section=wc_mundipagg_gateway">' . __( 'Click here to configure!', 'woocommerce-mundipagg' ) . '</a>' ) . '</p></div>';
 	}
 
 	/**
@@ -728,7 +737,7 @@ class WC_MundiPagg_Gateway extends WC_Payment_Gateway {
 	 * @return string
 	 */
 	public function currency_not_supported_message() {
-		echo '<div class="error"><p><strong>' . __( 'MundiPagg Disabled', 'woocommerce-mundipagg' ) . '</strong>: ' . sprintf( __( 'Currency <code>%s</code> is not supported. Works only with Brazilian Real.', 'woocommerce-mundipagg' ), get_woocommerce_currency() ) . '</p></div>';
+		echo '<div class="error"><p><strong>' . __( 'MundiPagg Disabled', 'woocommerce-mundipagg' ) . '</strong>: ' . sprintf( __( 'Currency <code>%s</code> is not supported. Works with %s.', 'woocommerce-mundipagg' ), get_woocommerce_currency(), '<code>' . implode( ', ', $this->get_supported_currencies() ) . '</code>' ) . '</p></div>';
 	}
 
 }
