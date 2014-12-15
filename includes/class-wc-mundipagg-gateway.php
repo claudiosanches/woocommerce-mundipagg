@@ -42,29 +42,11 @@ class WC_MundiPagg_Gateway extends WC_Payment_Gateway {
 
 		// Active logs.
 		if ( 'yes' == $this->debug ) {
-			if ( class_exists( 'WC_Logger' ) ) {
-				$this->log = new WC_Logger();
-			} else {
-				$this->log = $this->woocommerce_instance()->logger();
-			}
+			$this->log = new WC_Logger();
 		}
 
 		// Display admin notices.
 		$this->admin_notices();
-	}
-
-	/**
-	 * Backwards compatibility with version prior to 2.1.
-	 *
-	 * @return object Returns the main instance of WooCommerce class.
-	 */
-	protected function woocommerce_instance() {
-		if ( function_exists( 'WC' ) ) {
-			return WC();
-		} else {
-			global $woocommerce;
-			return $woocommerce;
-		}
 	}
 
 	/**
@@ -184,21 +166,6 @@ class WC_MundiPagg_Gateway extends WC_Payment_Gateway {
 				'description' => sprintf( __( 'Log MundiPagg events, such as API requests, inside %s', 'woocommerce-mundipagg' ), '<code>woocommerce/logs/' . esc_attr( $this->id ) . '-' . sanitize_file_name( wp_hash( $this->id ) ) . '.txt</code>' )
 			)
 		);
-	}
-
-	/**
-	 * Add error message in checkout.
-	 *
-	 * @param string $message Error message.
-	 *
-	 * @return string         Displays the error message.
-	 */
-	protected function add_error( $message ) {
-		if ( version_compare( WOOCOMMERCE_VERSION, '2.1', '>=' ) ) {
-
-		} else {
-			$this->woocommerce_instance()->add_error( $message );
-		}
 	}
 
 	/**
@@ -322,7 +289,7 @@ class WC_MundiPagg_Gateway extends WC_Payment_Gateway {
 				$html .= '<select id="' . esc_attr( $this->id ) . '-installments" class="input-text wc-credit-card-form-installments" name="' . $this->id . '_installments">';
 
 					// Get the cart total.
-					$cart_total = $this->woocommerce_instance()->cart->total;
+					$cart_total = WC()->cart->total;
 
 					// Create the installments.
 					for ( $installment = 1; $installment <= 12; $installment++ ) {
@@ -591,26 +558,22 @@ class WC_MundiPagg_Gateway extends WC_Payment_Gateway {
 				if ( isset( $response->ErrorReport->ErrorItemCollection->ErrorItem ) ) {
 					if ( is_array( $response->ErrorReport->ErrorItemCollection->ErrorItem ) ) {
 						foreach ( $response->ErrorReport->ErrorItemCollection->ErrorItem as $error ) {
-							$this->add_error( '<strong>' . __( 'MundiPagg', 'woocommerce-mundipagg' ) . '</strong>: ' . esc_attr( $error->Description ) );
+							wc_add_notice( '<strong>' . __( 'MundiPagg', 'woocommerce-mundipagg' ) . '</strong>: ' . esc_attr( $error->Description ), 'error' );
 						}
 					} else {
-						$this->add_error( '<strong>' . __( 'MundiPagg', 'woocommerce-mundipagg' ) . '</strong>: ' . esc_attr( $response->ErrorReport->ErrorItemCollection->ErrorItem->Description ) );
+						wc_add_notice( '<strong>' . __( 'MundiPagg', 'woocommerce-mundipagg' ) . '</strong>: ' . esc_attr( $response->ErrorReport->ErrorItemCollection->ErrorItem->Description ), 'error' );
 					}
 				} else {
-					$this->add_error( '<strong>' . __( 'MundiPagg', 'woocommerce-mundipagg' ) . '</strong>: ' . __( 'An error has occurred while processing your payment, please try again. Or contact us for assistance.', 'woocommerce-mundipagg' ) );
+					wc_add_notice( '<strong>' . __( 'MundiPagg', 'woocommerce-mundipagg' ) . '</strong>: ' . __( 'An error has occurred while processing your payment, please try again. Or contact us for assistance.', 'woocommerce-mundipagg' ), 'error' );
 				}
 			} else {
 				$updated = $this->update_order_status( $response );
 
 				if ( $updated ) {
 					// Remove cart.
-					$this->woocommerce_instance()->cart->empty_cart();
+					WC()->cart->empty_cart();
 
-					if ( version_compare( WOOCOMMERCE_VERSION, '2.1', '>=' ) ) {
-						$url = ;
-					} else {
-						$url = add_query_arg( 'key', $order->order_key, add_query_arg( 'order', $order_id, get_permalink( woocommerce_get_page_id( 'thanks' ) ) ) );
-					}
+					$url = add_query_arg( 'key', $order->order_key, add_query_arg( 'order', $order_id, get_permalink( woocommerce_get_page_id( 'thanks' ) ) ) );
 
 					// Go to thankyou page.
 					return array(
@@ -620,7 +583,7 @@ class WC_MundiPagg_Gateway extends WC_Payment_Gateway {
 				}
 			}
 		} else {
-			$this->add_error( '<strong>' . __( 'MundiPagg', 'woocommerce-mundipagg' ) . '</strong>: ' . __( 'An error has occurred while processing your payment, please try again. Or contact us for assistance.', 'woocommerce-mundipagg' ) );
+			wc_add_notice( '<strong>' . __( 'MundiPagg', 'woocommerce-mundipagg' ) . '</strong>: ' . __( 'An error has occurred while processing your payment, please try again. Or contact us for assistance.', 'woocommerce-mundipagg' ), 'error' );
 		}
 
 		// The request failed.
