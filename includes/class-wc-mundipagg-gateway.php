@@ -99,9 +99,7 @@ class WC_MundiPagg_Gateway extends WC_Payment_Gateway {
 	 */
 	public function is_available() {
 		// Test if is valid for use.
-		$available = ( 'yes' == $this->settings['enabled'] ) &&
-					! empty( $this->merchant_key ) &&
-					$this->using_supported_currency();
+		$available = parent::is_available() && ! empty( $this->merchant_key ) && $this->using_supported_currency();
 
 		return $available;
 	}
@@ -182,6 +180,13 @@ class WC_MundiPagg_Gateway extends WC_Payment_Gateway {
 		return $cents;
 	}
 
+	/**
+	 * Format the phone number.
+	 *
+	 * @param  string $value
+	 *
+	 * @return string
+	 */
 	protected function phone_format( $value ) {
 		if ( ! empty( $value ) ) {
 			return preg_replace( '/\D/', '', $value );
@@ -190,6 +195,13 @@ class WC_MundiPagg_Gateway extends WC_Payment_Gateway {
 		return $value;
 	}
 
+	/**
+	 * Get the country name.
+	 *
+	 * @param  string $code
+	 *
+	 * @return string
+	 */
 	protected function get_country( $code ) {
 		$countries = array(
 			'BR' => 'Brazil',
@@ -210,12 +222,24 @@ class WC_MundiPagg_Gateway extends WC_Payment_Gateway {
 		return $countries[ $code ];
 	}
 
+	/**
+	 * Get the gender.
+	 *
+	 * @param  string $value
+	 *
+	 * @return string
+	 */
 	protected function get_gender( $value ) {
 		$gender = substr( strtoupper( $value ), 0, 1 );
 
 		return $gender;
 	}
 
+	/**
+	 * Get the credit cards.
+	 *
+	 * @return array
+	 */
 	protected function get_credit_cards() {
 		$cards = apply_filters( 'woocommerce_mundipagg_availables_credit_cards', array(
 			'Visa'        => __( 'Visa', 'woocommerce-mundipagg' ),
@@ -229,6 +253,13 @@ class WC_MundiPagg_Gateway extends WC_Payment_Gateway {
 		return $cards;
 	}
 
+	/**
+	 * Get the credit card expiry date.
+	 *
+	 * @param  string $value
+	 *
+	 * @return array
+	 */
 	protected function get_credit_card_expiry_date( $value ) {
 		$month = '';
 		$year  = '';
@@ -250,7 +281,9 @@ class WC_MundiPagg_Gateway extends WC_Payment_Gateway {
 	 */
 	public function payment_fields() {
 		wp_enqueue_script( 'wc-credit-card-form' );
+
 		$html = '';
+
 		if ( $description = $this->get_description() ) {
 			$html .= wpautop( wptexturize( $description ) );
 		}
@@ -299,7 +332,7 @@ class WC_MundiPagg_Gateway extends WC_Payment_Gateway {
 						if ( $installment_value <= 5 ) {
 							break;
 						}
-						$html .= '<option value="' . $installment . '">' . sprintf( '%dx of %s', $installment, strip_tags( wc_price( $installment_value ) ) ) . '</option>';
+						$html .= '<option value="' . $installment . '">' . sprintf( __( '%dx of %s', 'woocommerce-mundipagg' ), $installment, strip_tags( wc_price( $installment_value ) ) ) . '</option>';
 					}
 				$html .= '</select>';
 			$html .= '</p>';
@@ -404,12 +437,6 @@ class WC_MundiPagg_Gateway extends WC_Payment_Gateway {
 
 		// Shop cart.
 		if ( sizeof( $order->get_items() ) > 0 ) {
-			if ( version_compare( WOOCOMMERCE_VERSION, '2.1', '>=' ) ) {
-				$shipping_total = $this->extract_cents( $order->get_total_shipping() );
-			} else {
-				$shipping_total = $this->extract_cents( $order->get_shipping() );
-			}
-
 			$cart_items = array();
 
 			foreach ( $order->get_items() as $order_item ) {
@@ -459,7 +486,7 @@ class WC_MundiPagg_Gateway extends WC_Payment_Gateway {
 			$request['createOrderRequest']['ShoppingCartCollection'] = array(
 				'ShoppingCart' => array(
 					array(
-						'FreightCostInCents'         => $shipping_total,
+						'FreightCostInCents'         => $this->extract_cents( $order->get_total_shipping() ),
 						'ShoppingCartItemCollection' => array(
 							'ShoppingCartItem'       => $cart_items
 						)

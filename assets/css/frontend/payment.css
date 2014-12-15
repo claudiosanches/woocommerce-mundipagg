@@ -1,4 +1,9 @@
-#mundipagg-cc-form .wc-credit-card-form-holder-name {
+#mundipagg-cc-form .wc-credit-card-form-holder-name,
+#mundipagg-cc-form #mundipagg-installments {
 	font-size: 1.5em;
 	padding: 8px;
+}
+
+#mundipagg-cc-form #mundipagg-installments {
+	width: 98%;
 }
