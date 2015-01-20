@@ -157,10 +157,10 @@ class WC_MundiPagg_Gateway extends WC_Payment_Gateway {
 				'default'     => 'WC-'
 			),
 			'payment_methods' => array(
-				'title'       => __( 'MundiPagg Merchant Key', 'woocommerce-mundipagg' ),
-				'type'        => 'text',
-				'description' => __( 'Please enter your MundiPagg Merchant Key address. This is needed in order to take payment.', 'woocommerce-mundipagg' ),
-				'desc_tip'    => true,
+				'title'       => __( 'Payment methods', 'woocommerce-mundipagg' ),
+				'type'        => 'select',
+				// 'description' => '',
+				// 'desc_tip'    => true,
 				'default'     => 'all',
 				'options'     => array(
 					'all'         => __( 'Credit card and ticket', 'woocommerce-mundipagg' ),
@@ -338,6 +338,7 @@ class WC_MundiPagg_Gateway extends WC_Payment_Gateway {
 	 */
 	public function payment_fields() {
 		wp_enqueue_script( 'wc-credit-card-form' );
+		wp_enqueue_script( 'wc-mundipagg-payment', plugins_url( 'assets/js/frontend/payment.js', plugin_dir_path( __FILE__ ) ), array( 'jquery' ), WC_MundiPagg::VERSION, true );
 
 		if ( $description = $this->get_description() ) {
 			echo wpautop( wptexturize( $description ) );

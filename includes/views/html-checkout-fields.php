@@ -4,37 +4,42 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 ?>
 
-
-<fieldset id="<?php echo esc_attr( $this->id ); ?>-cc-form">
-	<label><input type="radio" name="<?php echo esc_attr( $this->id ); ?>_payment_type" value="credit-card" style="display: inline; vertical-align: middle;" checked="checked" /> <?php _e( 'Credit Card', 'woocommerce-mundipagg' ); ?></label>
-	<label style="margin-left: 20px;"><input type="radio" name="<?php echo esc_attr( $this->id ); ?>_payment_type" value="ticket" style="display: inline; vertical-align: middle;" /> <?php _e( 'Billet', 'woocommerce-mundipagg' ); ?></label>
+<fieldset id="mundipagg-payment-methods">
+	<?php if ( 'all' == $this->payment_methods ) : ?>
+	<label id="mundipagg-credit-cart-type"><input type="radio" name="mundipagg_payment_type" value="credit-card" checked="checked" /> <?php _e( 'Credit Card', 'woocommerce-mundipagg' ); ?></label>
+	<label id="mundipagg-ticket-cart-type"><input type="radio" name="mundipagg_payment_type" value="ticket" /> <?php _e( 'Billet', 'woocommerce-mundipagg' ); ?></label>
+	<?php elseif ( 'credit_card' == $this->payment_methods ) : ?>
+		<input type="hidden" name="mundipagg_payment_type" value="credit-card" checked="checked" />
+	<?php elseif ( 'ticket' == $this->payment_methods ) : ?>
+		<input type="hidden" name="mundipagg_payment_type" value="ticket" checked="checked" />
+	<?php endif; ?>
 </fieldset>
 
-<fieldset id="<?php echo esc_attr( $this->id ); ?>-cc-form">
+<fieldset id="mundipagg-cc-form">
 
 	<p class="form-row form-row-wide">
-		<label for="<?php esc_attr( $this->id ); ?>-holder-name"><?php _e( 'Holder Name', 'woocommerce-mundipagg' ); ?> <span class="required">*</span></label>
-		<input id="<?php esc_attr( $this->id ); ?>-holder-name" class="input-text wc-credit-card-form-holder-name" type="text" autocomplete="off" name="<?php echo esc_attr( $this->id ); ?>_holder_name" style="font-size: 1.5em; padding: 8px;" />
+		<label for="mundipagg-holder-name"><?php _e( 'Holder Name', 'woocommerce-mundipagg' ); ?> <span class="required">*</span></label>
+		<input id="mundipagg-holder-name" class="input-text wc-credit-card-form-holder-name" type="text" autocomplete="off" name="mundipagg_holder_name" />
 	</p>
 
 	<p class="form-row form-row-wide">
-		<label for="<?php esc_attr( $this->id ); ?>-card-number"><?php _e( 'Card Number', 'woocommerce-mundipagg' ); ?> <span class="required">*</span></label>
-		<input id="<?php esc_attr( $this->id ); ?>-card-number" class="input-text wc-credit-card-form-card-number" type="text" maxlength="20" autocomplete="off" placeholder="•••• •••• •••• ••••" name="<?php echo esc_attr( $this->id ); ?>_card_number" style="font-size: 1.5em; padding: 8px;" />
+		<label for="mundipagg-card-number"><?php _e( 'Card Number', 'woocommerce-mundipagg' ); ?> <span class="required">*</span></label>
+		<input id="mundipagg-card-number" class="input-text wc-credit-card-form-card-number" type="text" maxlength="20" autocomplete="off" placeholder="&bull;&bull;&bull;&bull; &bull;&bull;&bull;&bull; &bull;&bull;&bull;&bull; &bull;&bull;&bull;&bull;" name="mundipagg_card_number" />
 	</p>
 
 	<p class="form-row form-row-first">
-		<label for="<?php esc_attr( $this->id ); ?>-card-expiry"><?php _e( 'Expiry (MM/YY)', 'woocommerce-mundipagg' ); ?> <span class="required">*</span></label>
-		<input id="<?php esc_attr( $this->id ); ?>-card-expiry" class="input-text wc-credit-card-form-card-expiry" type="text" autocomplete="off" placeholder="MM / YY" name="<?php echo esc_attr( $this->id ); ?>_card_expiry" style="font-size: 1.5em; padding: 8px;" />
+		<label for="mundipagg-card-expiry"><?php _e( 'Expiry (MM/YY)', 'woocommerce-mundipagg' ); ?> <span class="required">*</span></label>
+		<input id="mundipagg-card-expiry" class="input-text wc-credit-card-form-card-expiry" type="text" autocomplete="off" placeholder="MM / YY" name="mundipagg_card_expiry" />
 	</p>
 
 	<p class="form-row form-row-last">
-		<label for="<?php esc_attr( $this->id ); ?>-card-cvc"><?php _e( 'Card Code', 'woocommerce-mundipagg' ); ?> <span class="required">*</span></label>
-		<input id="<?php esc_attr( $this->id ); ?>-card-cvc" class="input-text wc-credit-card-form-card-cvc" type="text" autocomplete="off" placeholder="CVC" name="<?php echo esc_attr( $this->id ); ?>_card_cvc" style="font-size: 1.5em; padding: 8px;" />
+		<label for="mundipagg-card-cvc"><?php _e( 'Card Code', 'woocommerce-mundipagg' ); ?> <span class="required">*</span></label>
+		<input id="mundipagg-card-cvc" class="input-text wc-credit-card-form-card-cvc" type="text" autocomplete="off" placeholder="CVC" name="mundipagg_card_cvc" />
 	</p>
 
 	<p class="form-row form-row-wide">
-		<label for="<?php esc_attr( $this->id ); ?>-installments"><?php _e( 'Installments', 'woocommerce-mundipagg' ); ?></label>
-		<select id="<?php esc_attr( $this->id ); ?>-installments" class="input-text wc-credit-card-form-installments" name="<?php echo esc_attr( $this->id ); ?>_installments" style="font-size: 1.5em; padding: 8px; width: 100%;">
+		<label for="mundipagg-installments"><?php _e( 'Installments', 'woocommerce-mundipagg' ); ?></label>
+		<select id="mundipagg-installments" class="input-text wc-credit-card-form-installments" name="mundipagg_installments">
 			<?php
 				// Get the cart total.
 				$cart_total = WC()->cart->total;
@@ -56,6 +61,6 @@ if ( ! defined( 'ABSPATH' ) ) {
 	<div class="clear"></div>
 </fieldset>
 
-<div id="<?php echo esc_attr( $this->id ); ?>-ticket-info">
+<div id="mundipagg-ticket-info">
 	<p><?php _e( 'The order will be confirmed only after the ticket payment approval.', 'woocommerce-mundipagg' ); ?></p>
 </div>
