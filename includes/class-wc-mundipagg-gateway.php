@@ -28,12 +28,17 @@ class WC_MundiPagg_Gateway extends WC_Payment_Gateway {
 		$this->init_settings();
 
 		// Define user set variables.
-		$this->title          = $this->get_option( 'title' );
-		$this->description    = $this->get_option( 'description' );
-		$this->merchant_key   = $this->get_option( 'merchant_key' );
-		$this->invoice_prefix = $this->get_option( 'invoice_prefix', 'WC-' );
-		$this->staging        = $this->get_option( 'staging' );
-		$this->debug          = $this->get_option( 'debug' );
+		$this->title               = $this->get_option( 'title' );
+		$this->description         = $this->get_option( 'description' );
+		$this->merchant_key        = $this->get_option( 'merchant_key' );
+		$this->invoice_prefix      = $this->get_option( 'invoice_prefix', 'WC-' );
+		$this->payment_methods     = $this->get_option( 'payment_methods' );
+		$this->ticket_our_number   = $this->get_option( 'ticket_our_number' );
+		$this->ticket_bank_number  = $this->get_option( 'ticket_bank_number' );
+		$this->ticket_instructions = $this->get_option( 'ticket_instructions' );
+		$this->ticket_days         = $this->get_option( 'ticket_days', '5' );
+		$this->staging             = $this->get_option( 'staging' );
+		$this->debug               = $this->get_option( 'debug' );
 
 		// Actions.
 		// add_action( 'woocommerce_api_wc_mundipagg_gateway', array( $this, 'check_ipn_response' ) );
@@ -88,8 +93,6 @@ class WC_MundiPagg_Gateway extends WC_Payment_Gateway {
 		) );
 	}
 
-
-
 	/**
 	 * Returns a bool that indicates if currency is amongst the supported ones.
 	 *
@@ -137,7 +140,7 @@ class WC_MundiPagg_Gateway extends WC_Payment_Gateway {
 				'title'       => __( 'Description', 'woocommerce-mundipagg' ),
 				'type'        => 'textarea',
 				'description' => __( 'This controls the description which the user sees during checkout.', 'woocommerce-mundipagg' ),
-				'default'     => __( 'Pay with credit cart or billet via MundiPagg', 'woocommerce-mundipagg' )
+				'default'     => __( 'Pay with credit cart or ticket via MundiPagg', 'woocommerce-mundipagg' )
 			),
 			'merchant_key' => array(
 				'title'       => __( 'MundiPagg Merchant Key', 'woocommerce-mundipagg' ),
@@ -152,6 +155,51 @@ class WC_MundiPagg_Gateway extends WC_Payment_Gateway {
 				'description' => __( 'Please enter a prefix for your invoice numbers. If you use your MundiPagg account for multiple stores ensure this prefix is unqiue as MundiPagg will not allow orders with the same invoice number.', 'woocommerce-mundipagg' ),
 				'desc_tip'    => true,
 				'default'     => 'WC-'
+			),
+			'payment_methods' => array(
+				'title'       => __( 'MundiPagg Merchant Key', 'woocommerce-mundipagg' ),
+				'type'        => 'text',
+				'description' => __( 'Please enter your MundiPagg Merchant Key address. This is needed in order to take payment.', 'woocommerce-mundipagg' ),
+				'desc_tip'    => true,
+				'default'     => 'all',
+				'options'     => array(
+					'all'         => __( 'Credit card and ticket', 'woocommerce-mundipagg' ),
+					'credit_card' => __( 'Credit card only', 'woocommerce-mundipagg' ),
+					'ticket'      => __( 'Ticket only', 'woocommerce-mundipagg' )
+				)
+			),
+			'ticket_data' => array(
+				'title'       => __( 'Ticket data', 'woocommerce-mundipagg' ),
+				'type'        => 'title',
+				'description' => ''
+			),
+			'ticket_our_number' => array(
+				'title'       => __( 'Our Number', 'woocommerce-mundipagg' ),
+				'type'        => 'text',
+				// 'description' => '',
+				// 'desc_tip'    => true,
+				'default'     => ''
+			),
+			'ticket_bank_number' => array(
+				'title'       => __( 'Bank Number', 'woocommerce-mundipagg' ),
+				'type'        => 'text',
+				// 'description' => '',
+				// 'desc_tip'    => true,
+				'default'     => ''
+			),
+			'ticket_instructions' => array(
+				'title'       => __( 'Instructions', 'woocommerce-mundipagg' ),
+				'type'        => 'textarea',
+				// 'description' => '',
+				// 'desc_tip'    => true,
+				'default'     => ''
+			),
+			'ticket_days' => array(
+				'title'       => __( 'Deadline to pay the Ticket', 'woocommerce-mundipagg' ),
+				'type'        => 'text',
+				'description' => __( 'Days will be added to the current date to the expiry date.', 'woocommerce-mundipagg' ),
+				'desc_tip'    => true,
+				'default'     => '5'
 			),
 			'testing' => array(
 				'title'       => __( 'Gateway Testing', 'woocommerce-mundipagg' ),
@@ -291,65 +339,11 @@ class WC_MundiPagg_Gateway extends WC_Payment_Gateway {
 	public function payment_fields() {
 		wp_enqueue_script( 'wc-credit-card-form' );
 
-		$html = '';
-
 		if ( $description = $this->get_description() ) {
-			$html .= wpautop( wptexturize( $description ) );
+			echo wpautop( wptexturize( $description ) );
 		}
 
-		$html .= '<input type="hidden" name="' . $this->id . '_payment_type" value="credit-card" />';
-
-		$html .= '<fieldset id="' . $this->id . '-cc-form">';
-
-			// Credit card holder name.
-			$html .= '<p class="form-row form-row-wide">';
-				$html .= '<label for="' . esc_attr( $this->id ) . '-holder-name">' . __( 'Holder Name', 'woocommerce-mundipagg' ) . ' <span class="required">*</span></label>';
-				$html .= '<input id="' . esc_attr( $this->id ) . '-holder-name" class="input-text wc-credit-card-form-holder-name" type="text" autocomplete="off" name="' . $this->id . '_holder_name" />';
-			$html .= '</p>';
-
-			// Credit card number.
-			$html .= '<p class="form-row form-row-wide">';
-				$html .= '<label for="' . esc_attr( $this->id ) . '-card-number">' . __( 'Card Number', 'woocommerce-mundipagg' ) . ' <span class="required">*</span></label>';
-				$html .= '<input id="' . esc_attr( $this->id ) . '-card-number" class="input-text wc-credit-card-form-card-number" type="text" maxlength="20" autocomplete="off" placeholder="•••• •••• •••• ••••" name="' . $this->id . '_card_number" />';
-			$html .= '</p>';
-
-			// Credit card expiry.
-			$html .= '<p class="form-row form-row-first">';
-				$html .= '<label for="' . esc_attr( $this->id ) . '-card-expiry">' . __( 'Expiry (MM/YY)', 'woocommerce-mundipagg' ) . ' <span class="required">*</span></label>';
-				$html .= '<input id="' . esc_attr( $this->id ) . '-card-expiry" class="input-text wc-credit-card-form-card-expiry" type="text" autocomplete="off" placeholder="MM / YY" name="' . $this->id . '_card_expiry" />';
-			$html .= '</p>';
-
-			// Credit card CVC.
-			$html .= '<p class="form-row form-row-last">';
-				$html .= '<label for="' . esc_attr( $this->id ) . '-card-cvc">' . __( 'Card Code', 'woocommerce-mundipagg' ) . ' <span class="required">*</span></label>';
-				$html .= '<input id="' . esc_attr( $this->id ) . '-card-cvc" class="input-text wc-credit-card-form-card-cvc" type="text" autocomplete="off" placeholder="CVC" name="' . $this->id . '_card_cvc" />';
-			$html .= '</p>';
-
-			// Installments.
-			$html .= '<p class="form-row form-row-wide">';
-				$html .= '<label for="' . esc_attr( $this->id ) . '-installments">' . __( 'Installments', 'woocommerce-mundipagg' ) . '</label>';
-				$html .= '<select id="' . esc_attr( $this->id ) . '-installments" class="input-text wc-credit-card-form-installments" name="' . $this->id . '_installments">';
-
-					// Get the cart total.
-					$cart_total = WC()->cart->total;
-
-					// Create the installments.
-					for ( $installment = 1; $installment <= 12; $installment++ ) {
-						$installment_value = $cart_total / $installment;
-
-						// Stops if the installment is less than 5.
-						if ( $installment_value <= 5 ) {
-							break;
-						}
-						$html .= '<option value="' . $installment . '">' . sprintf( __( '%dx of %s', 'woocommerce-mundipagg' ), $installment, strip_tags( wc_price( $installment_value ) ) ) . '</option>';
-					}
-				$html .= '</select>';
-			$html .= '</p>';
-
-			$html .= '<div class="clear"></div>';
-		$html .= '</fieldset>';
-
-		echo $html;
+		include_once 'views/html-checkout-fields.php';
 	}
 
 	/**
@@ -504,31 +498,54 @@ class WC_MundiPagg_Gateway extends WC_Payment_Gateway {
 			);
 		}
 
-		// Credit card.
-		// if ( isset( $_POST['mundipagg_payment_type'] ) && 'credit-card' == $_POST['mundipagg_payment_type'] ) {
-		if ( isset( $_POST['mundipagg_holder_name'] ) ) {
-			$credit_cards = array();
+		// Payment type
+		if ( isset( $_POST['mundipagg_payment_type'] ) ) {
+			switch ( $_POST['mundipagg_payment_type'] ) {
+				case 'credit-card' :
+					$credit_cards = array();
+					$expiry       = $this->get_credit_card_expiry_date( sanitize_text_field( $_POST['mundipagg_card_expiry'] ) );
+					$credit_card  = array(
+						'AmountInCents'           => $total,
+						'CreditCardNumber'        => sanitize_text_field( $_POST['mundipagg_card_number'] ),
+						'InstallmentCount'        => intval( $_POST['mundipagg_installments'] ),
+						'HolderName'              => sanitize_text_field( $_POST['mundipagg_holder_name'] ),
+						'SecurityCode'            => sanitize_text_field( $_POST['mundipagg_card_cvc'] ),
+						'ExpMonth'                => $expiry['month'],
+						'ExpYear'                 => $expiry['year'],
+						'CreditCardBrandEnum'     => 'Visa',
+						'PaymentMethodCode'       => ( 'yes' == $this->staging ) ? 1 : null,
+						// 'PaymentMethodCode'       => null,
+						'CreditCardOperationEnum' => 'AuthAndCapture',
+					);
 
-			$expiry = $this->get_credit_card_expiry_date( sanitize_text_field( $_POST['mundipagg_card_expiry'] ) );
-			$credit_card = array(
-				'AmountInCents'           => $total,
-				'CreditCardNumber'        => sanitize_text_field( $_POST['mundipagg_card_number'] ),
-				'InstallmentCount'        => intval( $_POST['mundipagg_installments'] ),
-				'HolderName'              => sanitize_text_field( $_POST['mundipagg_holder_name'] ),
-				'SecurityCode'            => sanitize_text_field( $_POST['mundipagg_card_cvc'] ),
-				'ExpMonth'                => $expiry['month'],
-				'ExpYear'                 => $expiry['year'],
-				'CreditCardBrandEnum'     => 'Visa',
-				'PaymentMethodCode'       => ( 'yes' == $this->staging ) ? 1 : null,
-				// 'PaymentMethodCode'       => null,
-				'CreditCardOperationEnum' => 'AuthOnly',
-			);
+					$credit_cards[] = $credit_card;
 
-			$credit_cards[] = $credit_card;
+					$request['createOrderRequest']['CreditCardTransactionCollection'] = array(
+						'CreditCardTransaction' => $credit_cards
+					);
+					break;
 
-			$request['createOrderRequest']['CreditCardTransactionCollection'] = array(
-				'CreditCardTransaction' => $credit_cards
-			);
+				case 'ticket' :
+					$tickets = array();
+					$ticket  = array(
+						'AmountInCents'                   => $total,
+						'Instructions'                    => $this->ticket_instructions,
+						'NossoNumero'                     => $this->ticket_our_number,
+						'DaysToAddInBoletoExpirationDate' => $this->ticket_days,
+						'TransactionReference'            => sprintf( __( 'Payment for the order %s', 'woocommerce-mundipagg' ), $order->get_order_number() ),
+						'BankNumber'                      => $this->ticket_bank_number,
+					);
+
+					$tickets[] = $ticket;
+
+					$request['createOrderRequest']['BoletoTransactionCollection'] = array(
+						'BoletoTransaction' => $tickets
+					);
+					break;
+
+				default :
+					break;
+			}
 		}
 
 		$request = apply_filters( 'woocommerce_mundipagg_payment_data', $request, $order );
