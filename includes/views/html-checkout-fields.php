@@ -7,7 +7,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 <fieldset id="mundipagg-payment-methods">
 	<?php if ( 'all' == $this->payment_methods ) : ?>
 	<label id="mundipagg-credit-cart-type"><input type="radio" name="mundipagg_payment_type" value="credit-card" checked="checked" /> <?php _e( 'Credit Card', 'woocommerce-mundipagg' ); ?></label>
-	<label id="mundipagg-ticket-cart-type"><input type="radio" name="mundipagg_payment_type" value="ticket" /> <?php _e( 'Billet', 'woocommerce-mundipagg' ); ?></label>
+	<label id="mundipagg-ticket-cart-type"><input type="radio" name="mundipagg_payment_type" value="ticket" /> <?php _e( 'Ticket', 'woocommerce-mundipagg' ); ?></label>
 	<?php elseif ( 'credit_card' == $this->payment_methods ) : ?>
 		<input type="hidden" name="mundipagg_payment_type" value="credit-card" checked="checked" />
 	<?php elseif ( 'ticket' == $this->payment_methods ) : ?>
