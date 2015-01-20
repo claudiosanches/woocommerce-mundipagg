@@ -691,20 +691,19 @@ class WC_MundiPagg_Gateway extends WC_Payment_Gateway {
 			// Checks whether the invoice number matches the order.
 			// If true processes the payment.
 			if ( $order->id === $order_id ) {
-				update_post_meta( $order->id, 'MundiPagg OrderKey', sanitize_text_field( $data->OrderKey ) );
-				$order_status = sanitize_text_field( $data->OrderStatusEnum );
+				add_post_meta( $order->id, '_transaction_id', (string) sanitize_text_field( $data->OrderKey ), true );
+				$order_status = strtolower( sanitize_text_field( $data->OrderStatusEnum ) );
 
 				// Ref: http://mundipagg.freshdesk.com/support/solutions/articles/175822-status-
 				switch ( $order_status ) {
-					case 'Opened':
+					case 'opened' :
 						$order->update_status( 'on-hold', __( 'MundiPagg: This order has transactions that have not yet been fully processed.', 'woocommerce-mundipagg' ) );
 						$valid = true;
 
 						break;
-					case 'Captured':
-					case 'Paid':
-					case 'Overpaid':
-					case 'OverPaid':
+					case 'captured' :
+					case 'paid' :
+					case 'overpaid' :
 						$order->add_order_note( __( 'MundiPagg: Transaction approved.', 'woocommerce-mundipagg' ) );
 
 						if ( in_array( $order_status, array( 'Overpaid', 'OverPaid' ) ) ) {
@@ -716,22 +715,19 @@ class WC_MundiPagg_Gateway extends WC_Payment_Gateway {
 						$valid = true;
 
 						break;
-					case 'Canceled':
+					case 'canceled':
 						$order->update_status( 'cancelled', __( 'MundiPagg: All transactions were canceled.', 'woocommerce-mundipagg' ) );
 						$valid = true;
 
 						break;
-					case 'PartialPaid':
-					case 'Partialpaid':
-					case 'UnderPaid':
-					case 'Underpaid':
+					case 'partialpaid' :
+					case 'underpaid' :
 						$order->update_status( 'on-hold', __( 'MundiPagg: Only a few transactions have been paid to date.', 'woocommerce-mundipagg' ) );
 						$valid = true;
 
 						break;
 
-					default:
-						// No action xD.
+					default :
 						break;
 				}
 			}
