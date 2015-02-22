@@ -8,8 +8,6 @@ class WC_MundiPagg_Gateway extends WC_Payment_Gateway {
 
 	/**
 	 * Constructor for the gateway.
-	 *
-	 * @return void
 	 */
 	public function __construct() {
 		$this->id                 = 'mundipagg';
@@ -37,15 +35,18 @@ class WC_MundiPagg_Gateway extends WC_Payment_Gateway {
 		$this->staging             = $this->get_option( 'staging' );
 		$this->debug               = $this->get_option( 'debug' );
 
-		// Actions.
-		// add_action( 'woocommerce_api_wc_mundipagg_gateway', array( $this, 'check_ipn_response' ) );
-		// add_action( 'valid_mundipagg_ipn_request', array( $this, 'update_order_status' ) );
-		add_action( 'woocommerce_update_options_payment_gateways_' . $this->id, array( $this, 'process_admin_options' ) );
-
 		// Active logs.
 		if ( 'yes' == $this->debug ) {
 			$this->log = new WC_Logger();
 		}
+
+		// Actions.
+		// add_action( 'woocommerce_api_wc_mundipagg_gateway', array( $this, 'check_ipn_response' ) );
+		// add_action( 'valid_mundipagg_ipn_request', array( $this, 'update_order_status' ) );
+		add_action( 'woocommerce_update_options_payment_gateways_' . $this->id, array( $this, 'process_admin_options' ) );
+		add_action( 'woocommerce_thankyou_' . $this->id, array( $this, 'thankyou_page' ) );
+		add_action( 'woocommerce_email_after_order_table', array( $this, 'email_instructions' ), 10, 3 );
+		add_action( 'wp_enqueue_scripts', array( $this, 'checkout_scripts' ) );
 
 		// Display admin notices.
 		$this->admin_notices();
@@ -53,8 +54,6 @@ class WC_MundiPagg_Gateway extends WC_Payment_Gateway {
 
 	/**
 	 * Displays notifications when the admin has something wrong with the configuration.
-	 *
-	 * @return void
 	 */
 	protected function admin_notices() {
 		if ( is_admin() ) {
@@ -115,8 +114,6 @@ class WC_MundiPagg_Gateway extends WC_Payment_Gateway {
 
 	/**
 	 * Initialise Gateway Settings Form Fields.
-	 *
-	 * @return void
 	 */
 	public function init_form_fields() {
 		$this->form_fields = array(
@@ -343,13 +340,22 @@ class WC_MundiPagg_Gateway extends WC_Payment_Gateway {
 	}
 
 	/**
+	 * Checkout scripts.
+	 */
+	public function checkout_scripts() {
+		if ( is_checkout() && $this->is_available() ) {
+			wp_enqueue_script( 'wc-mundipagg-payment', plugins_url( 'assets/js/frontend/payment.js', plugin_dir_path( __FILE__ ) ), array( 'jquery' ), WC_MundiPagg::VERSION, true );
+			wp_enqueue_style( 'mundipagg-payment', plugins_url( 'assets/css/frontend/payment.css', plugin_dir_path( __FILE__ ) ), array(), WC_MundiPagg::VERSION, 'all' );
+		}
+	}
+
+	/**
 	 * Payment fields.
 	 *
 	 * @return string
 	 */
 	public function payment_fields() {
 		wp_enqueue_script( 'wc-credit-card-form' );
-		wp_enqueue_script( 'wc-mundipagg-payment', plugins_url( 'assets/js/frontend/payment.js', plugin_dir_path( __FILE__ ) ), array( 'jquery' ), WC_MundiPagg::VERSION, true );
 
 		if ( $description = $this->get_description() ) {
 			echo wpautop( wptexturize( $description ) );
@@ -635,10 +641,9 @@ class WC_MundiPagg_Gateway extends WC_Payment_Gateway {
 				$updated = $this->update_order_status( $response );
 
 				if ( $updated ) {
+
 					// Remove cart.
 					WC()->cart->empty_cart();
-
-					$url = add_query_arg( 'key', $order->order_key, add_query_arg( 'order', $order_id, get_permalink( woocommerce_get_page_id( 'thanks' ) ) ) );
 
 					// Go to thankyou page.
 					return array(
@@ -669,8 +674,6 @@ class WC_MundiPagg_Gateway extends WC_Payment_Gateway {
 
 	/**
 	 * Check API Response.
-	 *
-	 * @return void
 	 */
 	public function check_ipn_response() {
 		@ob_clean();
@@ -703,6 +706,14 @@ class WC_MundiPagg_Gateway extends WC_Payment_Gateway {
 			// If true processes the payment.
 			if ( $order->id === $order_id ) {
 				add_post_meta( $order->id, '_transaction_id', (string) sanitize_text_field( $data->OrderKey ), true );
+
+				// Save ticket data.
+				if ( isset( $data->BoletoTransactionResultCollection->BoletoTransactionResult->BoletoUrl ) ) {
+					$ticket_url = sanitize_text_field( $data->BoletoTransactionResultCollection->BoletoTransactionResult->BoletoUrl );
+
+					update_post_meta( $order->id, '_mundipagg_ticket_url', (string) $ticket_url );
+				}
+
 				$order_status = strtolower( sanitize_text_field( $data->OrderStatusEnum ) );
 
 				// Ref: http://mundipagg.freshdesk.com/support/solutions/articles/175822-status-
@@ -726,7 +737,7 @@ class WC_MundiPagg_Gateway extends WC_Payment_Gateway {
 						$valid = true;
 
 						break;
-					case 'canceled':
+					case 'canceled' :
 						$order->update_status( 'cancelled', __( 'MundiPagg: All transactions were canceled.', 'woocommerce-mundipagg' ) );
 						$valid = true;
 
@@ -745,6 +756,67 @@ class WC_MundiPagg_Gateway extends WC_Payment_Gateway {
 		}
 
 		return $valid;
+	}
+
+	/**
+	 * Thank You page message.
+	 *
+	 * @param  int    $order_id Order ID.
+	 *
+	 * @return string
+	 */
+	public function thankyou_page( $order_id ) {
+		$ticket_url = get_post_meta( $order_id, '_mundipagg_ticket_url', true );
+
+		if ( $ticket_url ) {
+			woocommerce_get_template(
+				'payment-instructions.php',
+				array(
+					'ticket_url' => $ticket_url
+				),
+				'woocommerce/mundipagg/',
+				WC_MundiPagg::get_templates_path()
+			);
+		}
+	}
+
+	/**
+	 * Add content to the WC emails.
+	 *
+	 * @param  object $order         Order object.
+	 * @param  bool   $sent_to_admin Send to admin.
+	 * @param  bool   $plain_text    Plain text or HTML.
+	 *
+	 * @return string                Payment instructions.
+	 */
+	public function email_instructions( $order, $sent_to_admin = false, $plain_text = false ) {
+		if ( $sent_to_admin || 'on-hold' !== $order->status || $this->id !== $order->payment_method ) {
+			return;
+		}
+
+		$ticket_url = get_post_meta( $order->id, '_mundipagg_ticket_url', true );
+
+		if ( $ticket_url ) {
+			if ( $plain_text ) {
+				woocommerce_get_template(
+					'emails/plain-instructions.php',
+					array(
+						'ticket_url' => $ticket_url
+					),
+					'woocommerce/mundipagg/',
+					WC_MundiPagg::get_templates_path()
+				);
+			} else {
+				woocommerce_get_template(
+					'emails/html-instructions.php',
+					array(
+						'ticket_url' => $ticket_url
+					),
+					'woocommerce/mundipagg/',
+					WC_MundiPagg::get_templates_path()
+				);
+			}
+		}
 	}
 
 	/**

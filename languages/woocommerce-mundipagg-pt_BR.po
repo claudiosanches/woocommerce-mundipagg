@@ -3,7 +3,7 @@ msgstr ""
 "Project-Id-Version: WooCommerce MundiPagg v1.0.0\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: \n"
-"PO-Revision-Date: 2015-01-20 01:36:22+0000\n"
+"PO-Revision-Date: 2015-02-22 19:24:01+0000\n"
 "Last-Translator: Claudio Sanches <contato@claudiosmweb.com>\n"
 "Language-Team: \n"
 "MIME-Version: 1.0\n"
@@ -20,122 +20,122 @@ msgstr ""
 "X-Poedit-SearchPath-0: .\n"
 "X-Textdomain-Support: yes"
 
-#: includes/class-wc-mundipagg-gateway.php:18
-#: includes/class-wc-mundipagg-gateway.php:137
-#: includes/class-wc-mundipagg-gateway.php:615
-#: includes/class-wc-mundipagg-gateway.php:618
-#: includes/class-wc-mundipagg-gateway.php:621
-#: includes/class-wc-mundipagg-gateway.php:640
+#: includes/class-wc-mundipagg-gateway.php:16
+#: includes/class-wc-mundipagg-gateway.php:131
+#: includes/class-wc-mundipagg-gateway.php:632
+#: includes/class-wc-mundipagg-gateway.php:635
+#: includes/class-wc-mundipagg-gateway.php:638
+#: includes/class-wc-mundipagg-gateway.php:656
 #@ woocommerce-mundipagg
 msgid "MundiPagg"
 msgstr "MundiPagg"
 
-#: includes/class-wc-mundipagg-gateway.php:127
+#: includes/class-wc-mundipagg-gateway.php:121
 #@ woocommerce-mundipagg
 msgid "Enable/Disable"
 msgstr "Habilitar/Desativar"
 
-#: includes/class-wc-mundipagg-gateway.php:129
+#: includes/class-wc-mundipagg-gateway.php:123
 #@ woocommerce-mundipagg
 msgid "Enable MundiPagg gateway"
 msgstr "Habilitar o MundiPagg"
 
-#: includes/class-wc-mundipagg-gateway.php:133
+#: includes/class-wc-mundipagg-gateway.php:127
 #@ woocommerce-mundipagg
 msgid "Title"
 msgstr "Título"
 
-#: includes/class-wc-mundipagg-gateway.php:135
+#: includes/class-wc-mundipagg-gateway.php:129
 #@ woocommerce-mundipagg
 msgid "This controls the title which the user sees during checkout."
 msgstr "Isto controla o título que o usuário vê durante a finalização da compra."
 
-#: includes/class-wc-mundipagg-gateway.php:140
+#: includes/class-wc-mundipagg-gateway.php:134
 #@ woocommerce-mundipagg
 msgid "Description"
 msgstr "Descrição"
 
-#: includes/class-wc-mundipagg-gateway.php:142
+#: includes/class-wc-mundipagg-gateway.php:136
 #@ woocommerce-mundipagg
 msgid "This controls the description which the user sees during checkout."
 msgstr "Descrição do método de pagamento que o cliente verá na finalização da compra."
 
-#: includes/class-wc-mundipagg-gateway.php:146
+#: includes/class-wc-mundipagg-gateway.php:140
 #@ woocommerce-mundipagg
 msgid "MundiPagg Merchant Key"
 msgstr "Merchant Key do MundiPagg"
 
-#: includes/class-wc-mundipagg-gateway.php:148
+#: includes/class-wc-mundipagg-gateway.php:142
 #@ woocommerce-mundipagg
 msgid "Please enter your MundiPagg Merchant Key address. This is needed in order to take payment."
 msgstr "Por favor digite a sua Merchant Key do MundiPagg. Isto é necessário para receber pagamentos."
 
-#: includes/class-wc-mundipagg-gateway.php:153
+#: includes/class-wc-mundipagg-gateway.php:147
 #@ woocommerce-mundipagg
 msgid "Invoice Prefix"
 msgstr "Prefixo do pedido"
 
-#: includes/class-wc-mundipagg-gateway.php:155
+#: includes/class-wc-mundipagg-gateway.php:149
 #@ woocommerce-mundipagg
 msgid "Please enter a prefix for your invoice numbers. If you use your MundiPagg account for multiple stores ensure this prefix is unqiue as MundiPagg will not allow orders with the same invoice number."
 msgstr "Por favor entre com um prefiro para os seus pedidos. Se você estiver utilizando uma conta do MundiPagg para várias lojas isto irá garantir que você reconheça de qual loja o pedido foi feito."
 
-#: includes/class-wc-mundipagg-gateway.php:205
+#: includes/class-wc-mundipagg-gateway.php:191
 #@ woocommerce-mundipagg
 msgid "Gateway Testing"
 msgstr "Testes do método de pagamento"
 
-#: includes/class-wc-mundipagg-gateway.php:210
+#: includes/class-wc-mundipagg-gateway.php:196
 #@ woocommerce-mundipagg
 msgid "Staging Environment"
 msgstr "Ambiente Staging"
 
-#: includes/class-wc-mundipagg-gateway.php:212
+#: includes/class-wc-mundipagg-gateway.php:198
 #@ woocommerce-mundipagg
 msgid "Enable Staging Environment"
 msgstr "Ativar o ambiente staging"
 
-#: includes/class-wc-mundipagg-gateway.php:214
+#: includes/class-wc-mundipagg-gateway.php:200
 #@ woocommerce-mundipagg
 msgid "Disable this option when the plugin was used for the production environment."
 msgstr "Desative esta opção quando for utilizar o plugin em ambiente de produção."
 
-#: includes/class-wc-mundipagg-gateway.php:217
+#: includes/class-wc-mundipagg-gateway.php:203
 #@ woocommerce-mundipagg
 msgid "Debug Log"
 msgstr "Log de depuração"
 
-#: includes/class-wc-mundipagg-gateway.php:219
+#: includes/class-wc-mundipagg-gateway.php:205
 #@ woocommerce-mundipagg
 msgid "Enable logging"
 msgstr "Ativar log"
 
-#: includes/class-wc-mundipagg-gateway.php:302
+#: includes/class-wc-mundipagg-gateway.php:299
 #@ woocommerce-mundipagg
 msgid "Visa"
 msgstr "Visa"
 
-#: includes/class-wc-mundipagg-gateway.php:303
+#: includes/class-wc-mundipagg-gateway.php:300
 #@ woocommerce-mundipagg
 msgid "MasterCard"
 msgstr "MasterCard"
 
-#: includes/class-wc-mundipagg-gateway.php:304
+#: includes/class-wc-mundipagg-gateway.php:301
 #@ woocommerce-mundipagg
 msgid "Hipercard"
 msgstr "Hipercard"
 
-#: includes/class-wc-mundipagg-gateway.php:305
+#: includes/class-wc-mundipagg-gateway.php:302
 #@ woocommerce-mundipagg
 msgid "Amex"
 msgstr "American Express"
 
-#: includes/class-wc-mundipagg-gateway.php:306
+#: includes/class-wc-mundipagg-gateway.php:303
 #@ woocommerce-mundipagg
 msgid "Diners"
 msgstr "Diners"
 
-#: includes/class-wc-mundipagg-gateway.php:307
+#: includes/class-wc-mundipagg-gateway.php:304
 #@ woocommerce-mundipagg
 msgid "Elo"
 msgstr "Elo"
@@ -171,49 +171,49 @@ msgstr "Parcelas"
 msgid "%dx of %s"
 msgstr "%dx de %s"
 
-#: includes/class-wc-mundipagg-gateway.php:621
-#: includes/class-wc-mundipagg-gateway.php:640
+#: includes/class-wc-mundipagg-gateway.php:638
+#: includes/class-wc-mundipagg-gateway.php:656
 #@ woocommerce-mundipagg
 msgid "An error has occurred while processing your payment, please try again. Or contact us for assistance."
 msgstr "Um erro ocorreu ao processar o seu pagamento, por favor tente novamente ou entre em contato para obter assistência."
 
-#: includes/class-wc-mundipagg-gateway.php:673
+#: includes/class-wc-mundipagg-gateway.php:687
 #@ woocommerce-mundipagg
 msgid "MundiPagg Request Failure"
 msgstr "MundiPagg falha na requisição"
 
-#: includes/class-wc-mundipagg-gateway.php:700
+#: includes/class-wc-mundipagg-gateway.php:722
 #@ woocommerce-mundipagg
 msgid "MundiPagg: This order has transactions that have not yet been fully processed."
 msgstr "MundiPagg: Este pedido tem transações que ainda não foram totalmente processadas."
 
-#: includes/class-wc-mundipagg-gateway.php:708
+#: includes/class-wc-mundipagg-gateway.php:729
 #@ woocommerce-mundipagg
 msgid "MundiPagg: Transaction approved."
 msgstr "MundiPagg: Transação aprovada."
 
-#: includes/class-wc-mundipagg-gateway.php:711
+#: includes/class-wc-mundipagg-gateway.php:732
 #@ woocommerce-mundipagg
 msgid "MundiPagg: This order was paid with a higher value than expected."
 msgstr "MundiPagg: Este pedido foi pago com um valor maior do que o esperado."
 
-#: includes/class-wc-mundipagg-gateway.php:720
+#: includes/class-wc-mundipagg-gateway.php:741
 #@ woocommerce-mundipagg
 msgid "MundiPagg: All transactions were canceled."
 msgstr "MundiPagg: Todas as transações foram canceladas."
 
-#: includes/class-wc-mundipagg-gateway.php:728
+#: includes/class-wc-mundipagg-gateway.php:747
 #@ woocommerce-mundipagg
 msgid "MundiPagg: Only a few transactions have been paid to date."
 msgstr "MundiPagg: Apenas algumas transações foram pagas até o momento."
 
-#: includes/class-wc-mundipagg-gateway.php:749
-#: includes/class-wc-mundipagg-gateway.php:758
+#: includes/class-wc-mundipagg-gateway.php:828
+#: includes/class-wc-mundipagg-gateway.php:837
 #@ woocommerce-mundipagg
 msgid "MundiPagg Disabled"
 msgstr "MundiPagg Desabilitado"
 
-#: includes/class-wc-mundipagg-gateway.php:749
+#: includes/class-wc-mundipagg-gateway.php:828
 #@ woocommerce-mundipagg
 msgid "Click here to configure!"
 msgstr "Clique aqui para configurar!"
@@ -254,107 +254,107 @@ msgstr "http://claudiosmweb.com/"
 msgid "1.0.0"
 msgstr "1.0.0"
 
-#: woocommerce-mundipagg.php:130
+#: woocommerce-mundipagg.php:122
 #, php-format
 #@ woocommerce-mundipagg
 msgid "%s depends on the last version of the %s and the %s to work!"
 msgstr "%s depende da ultima versão do %s e do %s para funcionar!"
 
-#: woocommerce-mundipagg.php:131
-#: woocommerce-mundipagg.php:145
+#: woocommerce-mundipagg.php:123
+#: woocommerce-mundipagg.php:137
 #@ woocommerce-mundipagg
 msgid "WooCommerce MundiPagg Gateway"
 msgstr "WooCommerce MundiPagg Gateway"
 
-#: woocommerce-mundipagg.php:132
+#: woocommerce-mundipagg.php:124
 #@ woocommerce-mundipagg
 msgid "WooCommerce"
 msgstr "WooCommerce"
 
-#: woocommerce-mundipagg.php:133
+#: woocommerce-mundipagg.php:125
 #@ woocommerce-mundipagg
 msgid "WooCommerce Extra Checkout Fields for Brazil"
 msgstr "WooCommerce Extra Checkout Fields for Brazil"
 
-#: woocommerce-mundipagg.php:144
+#: woocommerce-mundipagg.php:136
 #, php-format
 #@ woocommerce-mundipagg
 msgid "%s needs to have installed on your server the SOAP module to works!"
 msgstr "%s precisa que tenha instalado o modulo SOAP no servidor para funcionar!"
 
-#: includes/class-wc-mundipagg-gateway.php:749
+#: includes/class-wc-mundipagg-gateway.php:828
 #, php-format
 #@ woocommerce-mundipagg
 msgid "You should inform your Merchant Key. %s"
 msgstr "Você deve informar a sua Merchant Key. %s"
 
-#: includes/class-wc-mundipagg-gateway.php:221
+#: includes/class-wc-mundipagg-gateway.php:207
 #@ woocommerce-mundipagg
 msgid "Log MundiPagg events, such as API requests."
 msgstr "Grava eventos do MundoPagg, como por exemplo requisições da API."
 
-#: includes/class-wc-mundipagg-gateway.php:758
+#: includes/class-wc-mundipagg-gateway.php:837
 #, php-format
 #@ woocommerce-mundipagg
 msgid "Currency <code>%s</code> is not supported. Works with %s."
 msgstr "A moeda <code>%s</code> não é suportada. Funciona com %s."
 
-#: includes/class-wc-mundipagg-gateway.php:143
+#: includes/class-wc-mundipagg-gateway.php:137
 #@ woocommerce-mundipagg
 msgid "Pay with credit cart or ticket via MundiPagg"
 msgstr "Pague com cartão de crédito ou boleto bancário pelo MundiPagg"
 
-#: includes/class-wc-mundipagg-gateway.php:160
+#: includes/class-wc-mundipagg-gateway.php:154
 #@ woocommerce-mundipagg
 msgid "Payment methods"
 msgstr "Métodos de pagamento"
 
-#: includes/class-wc-mundipagg-gateway.php:166
+#: includes/class-wc-mundipagg-gateway.php:158
 #@ woocommerce-mundipagg
 msgid "Credit card and ticket"
 msgstr "Cartão de crédito e boleto"
 
-#: includes/class-wc-mundipagg-gateway.php:167
+#: includes/class-wc-mundipagg-gateway.php:159
 #@ woocommerce-mundipagg
 msgid "Credit card only"
 msgstr "Apenas cartão de crédito"
 
-#: includes/class-wc-mundipagg-gateway.php:168
+#: includes/class-wc-mundipagg-gateway.php:160
 #@ woocommerce-mundipagg
 msgid "Ticket only"
 msgstr "Apenas boleto"
 
-#: includes/class-wc-mundipagg-gateway.php:172
+#: includes/class-wc-mundipagg-gateway.php:164
 #@ woocommerce-mundipagg
 msgid "Ticket data"
 msgstr "Dados do boleto"
 
-#: includes/class-wc-mundipagg-gateway.php:177
+#: includes/class-wc-mundipagg-gateway.php:169
 #@ woocommerce-mundipagg
 msgid "Our Number"
 msgstr "Nosso número"
 
-#: includes/class-wc-mundipagg-gateway.php:184
+#: includes/class-wc-mundipagg-gateway.php:174
 #@ woocommerce-mundipagg
 msgid "Bank Number"
 msgstr "Número do banco"
 
-#: includes/class-wc-mundipagg-gateway.php:191
+#: includes/class-wc-mundipagg-gateway.php:179
 #@ woocommerce-mundipagg
 msgid "Instructions"
 msgstr "Instruções"
 
-#: includes/class-wc-mundipagg-gateway.php:198
+#: includes/class-wc-mundipagg-gateway.php:184
 #@ woocommerce-mundipagg
 msgid "Deadline to pay the Ticket"
 msgstr "Prazo para pagar o boleto"
 
-#: includes/class-wc-mundipagg-gateway.php:200
+#: includes/class-wc-mundipagg-gateway.php:186
 #@ woocommerce-mundipagg
 msgid "Days will be added to the current date to the expiry date."
 msgstr "Dias que serão adicionados a data atual até o vencimento."
 
-#: includes/class-wc-mundipagg-gateway.php:536
+#: includes/class-wc-mundipagg-gateway.php:553
 #, php-format
 #@ woocommerce-mundipagg
 msgid "Payment for the order %s"
@@ -374,4 +374,39 @@ msgstr "O pedido será confirmado apenas depois da aprovação do pagamento do b
 #@ woocommerce-mundipagg
 msgid "Ticket"
 msgstr "Boleto Bancário"
+
+#: templates/emails/html-instructions.php:16
+#: templates/emails/plain-instructions.php:14
+#@ woocommerce-mundipagg
+msgid "Payment"
+msgstr "Pagamento"
+
+#: templates/emails/html-instructions.php:18
+#: templates/emails/plain-instructions.php:18
+#@ woocommerce-mundipagg
+msgid "Please use the link below to view your Banking Ticket, you can print and pay in your internet banking or in a lottery retailer:"
+msgstr "Por favor, utilize o link abaixo para ver o seu boleto bancário, você pode imprimi-lo e fazer o pagamento pelo site do seu banco ou por uma casa lotérica."
+
+#: templates/emails/html-instructions.php:18
+#: templates/payment-instructions.php:16
+#@ woocommerce-mundipagg
+msgid "Pay the Banking Ticket"
+msgstr "Pagar boleto bancário"
+
+#: templates/emails/html-instructions.php:18
+#: templates/emails/plain-instructions.php:26
+#: templates/payment-instructions.php:16
+#@ woocommerce-mundipagg
+msgid "After we receive the ticket payment confirmation, your order will be processed."
+msgstr "O seu pedido será processando assim que recebermos a confirmação do pagamento do seu boleto."
+
+#: templates/payment-instructions.php:16
+#@ woocommerce-mundipagg
+msgid "Please click in the following button to view your Banking Ticket."
+msgstr "Por favor, click no botão a seguir para visualizar o seu boleto bancário."
+
+#: templates/payment-instructions.php:16
+#@ woocommerce-mundipagg
+msgid "You can print and pay in your internet banking or in a lottery retailer."
+msgstr "Você pode imprimi-lo e fazer o pagamento pelo site do seu banco ou por uma casa lotérica."
 
