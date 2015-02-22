@@ -48,23 +48,24 @@ class WC_MundiPagg_Gateway extends WC_Payment_Gateway {
 		add_action( 'woocommerce_email_after_order_table', array( $this, 'email_instructions' ), 10, 3 );
 		add_action( 'wp_enqueue_scripts', array( $this, 'checkout_scripts' ) );
 
-		// Display admin notices.
-		$this->admin_notices();
+		if ( is_admin() ) {
+			add_action( 'admin_notices', array( $this, 'admin_notices' ) );
+		}
 	}
 
 	/**
 	 * Displays notifications when the admin has something wrong with the configuration.
 	 */
-	protected function admin_notices() {
-		if ( is_admin() ) {
+	public function admin_notices() {
+		if ( 'yes' == $this->get_option( 'enabled' ) ) {
 			// Checks if merchant_key is not empty.
 			if ( empty( $this->merchant_key ) ) {
-				add_action( 'admin_notices', array( $this, 'merchant_key_missing_message' ) );
+				include_once 'views/html-notice-merchant-key-missing.php';
 			}
 
 			// Checks that the currency is supported
-			if ( ! $this->using_supported_currency() ) {
-				add_action( 'admin_notices', array( $this, 'currency_not_supported_message' ) );
+			if ( ! $this->using_supported_currency() && ! class_exists( 'woocommerce_wpml' ) ) {
+				include_once 'views/html-notice-currency-not-supported.php';
 			}
 		}
 	}
@@ -355,13 +356,39 @@ class WC_MundiPagg_Gateway extends WC_Payment_Gateway {
 	 * @return string
 	 */
 	public function payment_fields() {
+		global $woocommerce;
+
 		wp_enqueue_script( 'wc-credit-card-form' );
+
+		$cart_total = 0;
+		if ( defined( 'WC_VERSION' ) && version_compare( WC_VERSION, '2.1', '>=' ) ) {
+			$order_id = absint( get_query_var( 'order-pay' ) );
+		} else {
+			$order_id = isset( $_GET['order_id'] ) ? absint( $_GET['order_id'] ) : 0;
+		}
+
+		// Gets order total from "pay for order" page.
+		if ( 0 < $order_id ) {
+			$order      = new WC_Order( $order_id );
+			$cart_total = (float) $order->get_total();
+
+		// Gets order total from cart/checkout.
+		} elseif ( 0 < $woocommerce->cart->total ) {
+			$cart_total = (float) $woocommerce->cart->total;
+		}
 
 		if ( $description = $this->get_description() ) {
 			echo wpautop( wptexturize( $description ) );
 		}
 
-		include_once 'views/html-checkout-fields.php';
+		woocommerce_get_template(
+			'checkout-form.php', array(
+				'cart_total'        => $cart_total,
+				'payment_methods'   => $this->payment_methods
+			),
+			'woocommerce/mundipagg/',
+			WC_MundiPagg::get_templates_path()
+		);
 	}
 
 	/**
@@ -818,23 +845,4 @@ class WC_MundiPagg_Gateway extends WC_Payment_Gateway {
 			}
 		}
 	}
-
-	/**
-	 * Adds error message when not configured the Merchant Key.
-	 *
-	 * @return string Error Mensage.
-	 */
-	public function merchant_key_missing_message() {
-		echo '<div class="error"><p><strong>' . __( 'MundiPagg Disabled', 'woocommerce-mundipagg' ) . '</strong>: ' . sprintf( __( 'You should inform your Merchant Key. %s', 'woocommerce-mundipagg' ), '<a href="admin.php?page=wc-settings&tab=checkout&section=wc_mundipagg_gateway">' . __( 'Click here to configure!', 'woocommerce-mundipagg' ) . '</a>' ) . '</p></div>';
-	}
-
-	/**
-	 * Adds error message when an unsupported currency is used.
-	 *
-	 * @return string
-	 */
-	public function currency_not_supported_message() {
-		echo '<div class="error"><p><strong>' . __( 'MundiPagg Disabled', 'woocommerce-mundipagg' ) . '</strong>: ' . sprintf( __( 'Currency <code>%s</code> is not supported. Works with %s.', 'woocommerce-mundipagg' ), get_woocommerce_currency(), '<code>' . implode( ', ', $this->get_supported_currencies() ) . '</code>' ) . '</p></div>';
-	}
-
 }

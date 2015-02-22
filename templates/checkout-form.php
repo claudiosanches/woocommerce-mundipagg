@@ -1,16 +1,24 @@
 <?php
+/**
+ * Checkout form.
+ *
+ * @author  Claudio_Sanches
+ * @package WooCommerce_MundiPagg/Templates
+ * @version 1.0.0
+ */
+
 if ( ! defined( 'ABSPATH' ) ) {
 	exit; // Exit if accessed directly.
 }
 ?>
 
 <fieldset id="mundipagg-payment-methods">
-	<?php if ( 'all' == $this->payment_methods ) : ?>
+	<?php if ( 'all' == $payment_methods ) : ?>
 	<label id="mundipagg-credit-cart-type"><input type="radio" name="mundipagg_payment_type" value="credit-card" checked="checked" /> <?php _e( 'Credit Card', 'woocommerce-mundipagg' ); ?></label>
 	<label id="mundipagg-ticket-cart-type"><input type="radio" name="mundipagg_payment_type" value="ticket" /> <?php _e( 'Ticket', 'woocommerce-mundipagg' ); ?></label>
-	<?php elseif ( 'credit_card' == $this->payment_methods ) : ?>
+	<?php elseif ( 'credit_card' == $payment_methods ) : ?>
 		<input type="hidden" name="mundipagg_payment_type" value="credit-card" checked="checked" />
-	<?php elseif ( 'ticket' == $this->payment_methods ) : ?>
+	<?php elseif ( 'ticket' == $payment_methods ) : ?>
 		<input type="hidden" name="mundipagg_payment_type" value="ticket" checked="checked" />
 	<?php endif; ?>
 </fieldset>
@@ -41,9 +49,6 @@ if ( ! defined( 'ABSPATH' ) ) {
 		<label for="mundipagg-installments"><?php _e( 'Installments', 'woocommerce-mundipagg' ); ?></label>
 		<select id="mundipagg-installments" class="input-text wc-credit-card-form-installments" name="mundipagg_installments">
 			<?php
-				// Get the cart total.
-				$cart_total = WC()->cart->total;
-
 				// Create the installments.
 				for ( $installment = 1; $installment <= 12; $installment++ ) {
 					$installment_value = $cart_total / $installment;
