@@ -19,7 +19,8 @@ class WC_MundiPagg_Gateway extends WC_Payment_Gateway {
 		$this->method_description = '';
 
 		// API.
-		$this->api_url = 'https://transaction.mundipaggone.com/MundiPaggService.svc?wsdl';
+		// $this->api_url = 'https://transaction.mundipaggone.com/mundipaggservice.svc?wsdl';
+		$this->api_url = 'https://staging.mundipaggone.com/mundipaggservice.svc?wsdl';
 
 		// Load the form fields.
 		$this->init_form_fields();
@@ -159,8 +160,6 @@ class WC_MundiPagg_Gateway extends WC_Payment_Gateway {
 			'payment_methods' => array(
 				'title'       => __( 'Payment methods', 'woocommerce-mundipagg' ),
 				'type'        => 'select',
-				// 'description' => '',
-				// 'desc_tip'    => true,
 				'default'     => 'all',
 				'options'     => array(
 					'all'         => __( 'Credit card and ticket', 'woocommerce-mundipagg' ),
@@ -176,22 +175,16 @@ class WC_MundiPagg_Gateway extends WC_Payment_Gateway {
 			'ticket_our_number' => array(
 				'title'       => __( 'Our Number', 'woocommerce-mundipagg' ),
 				'type'        => 'text',
-				// 'description' => '',
-				// 'desc_tip'    => true,
 				'default'     => ''
 			),
 			'ticket_bank_number' => array(
 				'title'       => __( 'Bank Number', 'woocommerce-mundipagg' ),
 				'type'        => 'text',
-				// 'description' => '',
-				// 'desc_tip'    => true,
 				'default'     => ''
 			),
 			'ticket_instructions' => array(
 				'title'       => __( 'Instructions', 'woocommerce-mundipagg' ),
 				'type'        => 'textarea',
-				// 'description' => '',
-				// 'desc_tip'    => true,
 				'default'     => ''
 			),
 			'ticket_days' => array(
@@ -329,6 +322,17 @@ class WC_MundiPagg_Gateway extends WC_Payment_Gateway {
 			'month' => $month,
 			'year'  => $year,
 		);
+	}
+
+	/**
+	 * Get only numbers.
+	 *
+	 * @param  string $string
+	 *
+	 * @return string
+	 */
+	protected function get_only_numbers( $string ) {
+		return preg_replace( '([^0-9])', '', $string );
 	}
 
 	/**
@@ -507,7 +511,7 @@ class WC_MundiPagg_Gateway extends WC_Payment_Gateway {
 					$expiry       = $this->get_credit_card_expiry_date( sanitize_text_field( $_POST['mundipagg_card_expiry'] ) );
 					$credit_card  = array(
 						'AmountInCents'           => $total,
-						'CreditCardNumber'        => sanitize_text_field( $_POST['mundipagg_card_number'] ),
+						'CreditCardNumber'        => sanitize_text_field( $this->get_only_numbers( $_POST['mundipagg_card_number'] ) ),
 						'InstallmentCount'        => intval( $_POST['mundipagg_installments'] ),
 						'HolderName'              => sanitize_text_field( $_POST['mundipagg_holder_name'] ),
 						'SecurityCode'            => sanitize_text_field( $_POST['mundipagg_card_cvc'] ),
