@@ -18,10 +18,6 @@ class WC_MundiPagg_Gateway extends WC_Payment_Gateway {
 		$this->method_title       = __( 'MundiPagg', 'woocommerce-mundipagg' );
 		$this->method_description = '';
 
-		// API.
-		// $this->api_url = 'https://transaction.mundipaggone.com/mundipaggservice.svc?wsdl';
-		$this->api_url = 'https://staging.mundipaggone.com/mundipaggservice.svc?wsdl';
-
 		// Load the form fields.
 		$this->init_form_fields();
 
@@ -214,6 +210,17 @@ class WC_MundiPagg_Gateway extends WC_Payment_Gateway {
 				'description' => __( 'Log MundiPagg events, such as API requests.', 'woocommerce-mundipagg' )
 			)
 		);
+	}
+
+	/**
+	 * Get the API URL.
+	 *
+	 * @return string
+	 */
+	protected function get_api_url() {
+		$environment = ( 'yes' == $this->staging ) ? 'staging' : 'transaction';
+
+		return 'https://' . $environment . '.mundipaggone.com/mundipaggservice.svc?wsdl';
 	}
 
 	/**
@@ -581,7 +588,7 @@ class WC_MundiPagg_Gateway extends WC_Payment_Gateway {
 		);
 
 		try {
-			$soap          = new SoapClient( $this->api_url, $soap_opt );
+			$soap          = new SoapClient( $this->get_api_url(), $soap_opt );
 			$soap_response = $soap->CreateOrder( $data );
 			$response[]    = $soap_response;
 
