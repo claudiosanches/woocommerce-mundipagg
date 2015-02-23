@@ -508,8 +508,9 @@ class WC_MundiPagg_Gateway extends WC_Payment_Gateway {
 					}
 
 					// Get the prouct sku/id.
-					if ( ! empty( $product->get_sku() ) ) {
-						$item_sku = $product->get_sku();
+					$_product_sku = $product->get_sku();
+					if ( ! empty( $_product_sku ) ) {
+						$item_sku = $_product_sku;
 					} else if ( $order_item['variation_id'] > 0 ) {
 						$item_sku = $order_item['variation_id'];
 					} else {
