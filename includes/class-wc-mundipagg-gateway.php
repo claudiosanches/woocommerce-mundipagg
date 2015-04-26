@@ -360,31 +360,14 @@ class WC_MundiPagg_Gateway extends WC_Payment_Gateway {
 
 		wp_enqueue_script( 'wc-credit-card-form' );
 
-		$cart_total = 0;
-		if ( defined( 'WC_VERSION' ) && version_compare( WC_VERSION, '2.1', '>=' ) ) {
-			$order_id = absint( get_query_var( 'order-pay' ) );
-		} else {
-			$order_id = isset( $_GET['order_id'] ) ? absint( $_GET['order_id'] ) : 0;
-		}
-
-		// Gets order total from "pay for order" page.
-		if ( 0 < $order_id ) {
-			$order      = new WC_Order( $order_id );
-			$cart_total = (float) $order->get_total();
-
-		// Gets order total from cart/checkout.
-		} elseif ( 0 < $woocommerce->cart->total ) {
-			$cart_total = (float) $woocommerce->cart->total;
-		}
-
 		if ( $description = $this->get_description() ) {
 			echo wpautop( wptexturize( $description ) );
 		}
 
 		woocommerce_get_template(
 			'checkout-form.php', array(
-				'cart_total'        => $cart_total,
-				'payment_methods'   => $this->payment_methods
+				'cart_total'      => $this->get_order_total(),
+				'payment_methods' => $this->payment_methods
 			),
 			'woocommerce/mundipagg/',
 			WC_MundiPagg::get_templates_path()
