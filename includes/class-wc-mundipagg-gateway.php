@@ -791,7 +791,7 @@ class WC_MundiPagg_Gateway extends WC_Payment_Gateway {
 				case 'overpaid' :
 					$order->add_order_note( __( 'MundiPagg: Transaction approved.', 'woocommerce-mundipagg' ) );
 
-					if ( in_array( $order_status, array( 'Overpaid', 'OverPaid' ) ) ) {
+					if ( 'overpaid' == $order_status ) {
 						$order->add_order_note( __( 'MundiPagg: This order was paid with a higher value than expected.', 'woocommerce-mundipagg' ) );
 					}
 
