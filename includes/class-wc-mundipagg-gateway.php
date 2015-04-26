@@ -41,8 +41,8 @@ class WC_MundiPagg_Gateway extends WC_Payment_Gateway {
 		}
 
 		// Actions.
-		// add_action( 'woocommerce_api_wc_mundipagg_gateway', array( $this, 'check_ipn_response' ) );
-		// add_action( 'valid_mundipagg_ipn_request', array( $this, 'update_order_status' ) );
+		add_action( 'woocommerce_api_wc_mundipagg_gateway', array( $this, 'check_ipn_response' ) );
+		add_action( 'woocommerce_mundipagg_order_status_change', array( $this, 'update_order_status' ), 10, 2 );
 		add_action( 'woocommerce_update_options_payment_gateways_' . $this->id, array( $this, 'process_admin_options' ) );
 		add_action( 'woocommerce_thankyou_' . $this->id, array( $this, 'thankyou_page' ) );
 		add_action( 'woocommerce_email_after_order_table', array( $this, 'email_instructions' ), 10, 3 );
@@ -666,7 +666,18 @@ class WC_MundiPagg_Gateway extends WC_Payment_Gateway {
 					wc_add_notice( '<strong>' . __( 'MundiPagg', 'woocommerce-mundipagg' ) . '</strong>: ' . __( 'An error has occurred while processing your payment, please try again. Or contact us for assistance.', 'woocommerce-mundipagg' ), 'error' );
 				}
 			} else {
-				$updated = $this->update_order_status( $response );
+				if ( isset( $response->OrderKey ) ) {
+					add_post_meta( $order->id, '_transaction_id', (string) sanitize_text_field( $response->OrderKey ), true );
+				}
+
+				// Save ticket URL.
+				if ( isset( $response->BoletoTransactionResultCollection->BoletoTransactionResult->BoletoUrl ) ) {
+					$ticket_url = sanitize_text_field( $response->BoletoTransactionResultCollection->BoletoTransactionResult->BoletoUrl );
+
+					update_post_meta( $order->id, '_mundipagg_ticket_url', (string) $ticket_url );
+				}
+
+				$updated = $this->update_order_status( (string) $response->OrderReference, (string) $response->OrderStatusEnum );
 
 				if ( $updated ) {
 
@@ -694,10 +705,44 @@ class WC_MundiPagg_Gateway extends WC_Payment_Gateway {
 	/**
 	 * Process the IPN.
 	 *
-	 * @return bool
+	 * @return array
 	 */
 	public function process_ipn_request( $data ) {
+		if ( 'yes' == $this->debug ) {
+			$this->log->add( $this->id, 'IPN request: ' . print_r( $data, true ) );
+		}
 
+		try {
+			$xml = @new SimpleXMLElement( $data, LIBXML_NOCDATA );
+
+			if ( ! isset( $xml->OrderStatus ) ) {
+				throw new Exception( 'Missing OrderStatus param' );
+			}
+
+			if ( ! isset( $xml->OrderReference ) ) {
+				throw new Exception( 'Missing OrderReference param' );
+			}
+
+			if ( ! isset( $xml->MerchantKey ) ) {
+				throw new Exception( 'Missing MerchantKey param' );
+			}
+
+			$merchant_key = (string) $xml->MerchantKey;
+			if ( $this->merchant_key != $merchant_key ) {
+				throw new Exception( 'Invalid MerchantKey returned' );
+			}
+
+			return array(
+				'reference' => (string) $xml->OrderReference,
+				'status'    => (string) $xml->OrderStatus
+			);
+		} catch ( Exception $e ) {
+			if ( 'yes' == $this->debug ) {
+				$this->log->add( $this->id, 'IPN error: ' . print_r( $e->getMessage(), true ) );
+			}
+
+			return array();
+		}
 	}
 
 	/**
@@ -710,7 +755,7 @@ class WC_MundiPagg_Gateway extends WC_Payment_Gateway {
 
 		if ( $ipn ) {
 			header( 'HTTP/1.1 200 OK' );
-			do_action( 'valid_mundipagg_ipn_request', $ipn );
+			do_action( 'woocommerce_mundipagg_order_status_change', $ipn['reference'], $ipn['status'] );
 		} else {
 			wp_die( __( 'MundiPagg Request Failure', 'woocommerce-mundipagg' ) );
 		}
@@ -719,67 +764,56 @@ class WC_MundiPagg_Gateway extends WC_Payment_Gateway {
 	/**
 	 * Update order status!
 	 *
-	 * @param  object $data MundiPagg order data.
+	 * @param  string $reference.
+	 * @param  string $status.
 	 *
 	 * @return bool
 	 */
-	public function update_order_status( $data ) {
+	public function update_order_status( $reference, $status ) {
 		$valid = false;
 
-		if ( isset( $data->OrderReference ) ) {
-			$order_id = (int) str_replace( $this->invoice_prefix, '', $data->OrderReference );
-			$order    = wc_get_order( $order_id );
+		$order_id = (int) str_replace( $this->invoice_prefix, '', $reference );
+		$order    = wc_get_order( $order_id );
 
-			// Checks whether the invoice number matches the order.
-			// If true processes the payment.
-			if ( $order->id === $order_id ) {
-				add_post_meta( $order->id, '_transaction_id', (string) sanitize_text_field( $data->OrderKey ), true );
+		// Checks whether the invoice number matches the order.
+		// If true processes the payment.
+		if ( $order->id === $order_id ) {
+			$order_status = strtolower( sanitize_text_field( $status ) );
 
-				// Save ticket data.
-				if ( isset( $data->BoletoTransactionResultCollection->BoletoTransactionResult->BoletoUrl ) ) {
-					$ticket_url = sanitize_text_field( $data->BoletoTransactionResultCollection->BoletoTransactionResult->BoletoUrl );
+			switch ( $order_status ) {
+				case 'opened' :
+					$order->update_status( 'on-hold', __( 'MundiPagg: This order has transactions that have not yet been fully processed.', 'woocommerce-mundipagg' ) );
+					$valid = true;
 
-					update_post_meta( $order->id, '_mundipagg_ticket_url', (string) $ticket_url );
-				}
+					break;
+				case 'captured' :
+				case 'paid' :
+				case 'overpaid' :
+					$order->add_order_note( __( 'MundiPagg: Transaction approved.', 'woocommerce-mundipagg' ) );
 
-				$order_status = strtolower( sanitize_text_field( $data->OrderStatusEnum ) );
+					if ( in_array( $order_status, array( 'Overpaid', 'OverPaid' ) ) ) {
+						$order->add_order_note( __( 'MundiPagg: This order was paid with a higher value than expected.', 'woocommerce-mundipagg' ) );
+					}
 
-				// Ref: http://mundipagg.freshdesk.com/support/solutions/articles/175822-status-
-				switch ( $order_status ) {
-					case 'opened' :
-						$order->update_status( 'on-hold', __( 'MundiPagg: This order has transactions that have not yet been fully processed.', 'woocommerce-mundipagg' ) );
-						$valid = true;
+					$order->payment_complete();
 
-						break;
-					case 'captured' :
-					case 'paid' :
-					case 'overpaid' :
-						$order->add_order_note( __( 'MundiPagg: Transaction approved.', 'woocommerce-mundipagg' ) );
+					$valid = true;
 
-						if ( in_array( $order_status, array( 'Overpaid', 'OverPaid' ) ) ) {
-							$order->add_order_note( __( 'MundiPagg: This order was paid with a higher value than expected.', 'woocommerce-mundipagg' ) );
-						}
+					break;
+				case 'canceled' :
+					$order->update_status( 'cancelled', __( 'MundiPagg: All transactions were canceled.', 'woocommerce-mundipagg' ) );
+					$valid = true;
 
-						$order->payment_complete();
+					break;
+				case 'partialpaid' :
+				case 'underpaid' :
+					$order->update_status( 'on-hold', __( 'MundiPagg: Only a few transactions have been paid to date.', 'woocommerce-mundipagg' ) );
+					$valid = true;
 
-						$valid = true;
+					break;
 
-						break;
-					case 'canceled' :
-						$order->update_status( 'cancelled', __( 'MundiPagg: All transactions were canceled.', 'woocommerce-mundipagg' ) );
-						$valid = true;
-
-						break;
-					case 'partialpaid' :
-					case 'underpaid' :
-						$order->update_status( 'on-hold', __( 'MundiPagg: Only a few transactions have been paid to date.', 'woocommerce-mundipagg' ) );
-						$valid = true;
-
-						break;
-
-					default :
-						break;
-				}
+				default :
+					break;
 			}
 		}
 

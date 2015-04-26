@@ -1,10 +1,10 @@
 <?php
 /**
  * Plugin Name: WooCommerce MundiPagg
- * Plugin URI: http://claudiosmweb.com
+ * Plugin URI: https://claudiosmweb.com
  * Description: MundiPagg gateway for WooCommerce
  * Author: Claudio Sanches
- * Author URI: http://claudiosmweb.com/
+ * Author URI: https://claudiosmweb.com/
  * Version: 1.0.0
  * License: GPLv2 or later
  * Text Domain: woocommerce-mundipagg
@@ -12,7 +12,7 @@
  */
 
 if ( ! defined( 'ABSPATH' ) ) {
-	exit; // Exit if accessed directly.
+	exit;
 }
 
 if ( ! class_exists( 'WC_MundiPagg' ) ) :
