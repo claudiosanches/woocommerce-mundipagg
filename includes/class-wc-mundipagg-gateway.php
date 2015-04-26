@@ -696,6 +696,10 @@ class WC_MundiPagg_Gateway extends WC_Payment_Gateway {
 		}
 
 		try {
+			if ( empty( $data ) ) {
+				throw new Exception( 'Empty IPN request' );
+			}
+
 			$xml = @new SimpleXMLElement( $data, LIBXML_NOCDATA );
 
 			if ( ! isset( $xml->OrderStatus ) ) {
