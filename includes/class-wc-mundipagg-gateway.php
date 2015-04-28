@@ -640,13 +640,15 @@ class WC_MundiPagg_Gateway extends WC_Payment_Gateway {
 				if ( isset( $response->ErrorReport->ErrorItemCollection->ErrorItem ) ) {
 					if ( is_array( $response->ErrorReport->ErrorItemCollection->ErrorItem ) ) {
 						foreach ( $response->ErrorReport->ErrorItemCollection->ErrorItem as $error ) {
-							wc_add_notice( '<strong>' . __( 'MundiPagg', 'woocommerce-mundipagg' ) . '</strong>: ' . esc_attr( $error->Description ), 'error' );
+							wc_add_notice( '<strong>' . esc_html( $this->title ) . '</strong>: ' . wc_clean( $error->Description ), 'error' );
 						}
 					} else {
-						wc_add_notice( '<strong>' . __( 'MundiPagg', 'woocommerce-mundipagg' ) . '</strong>: ' . esc_attr( $response->ErrorReport->ErrorItemCollection->ErrorItem->Description ), 'error' );
+						wc_add_notice( '<strong>' . esc_html( $this->title ) . '</strong>: ' . wc_clean( $response->ErrorReport->ErrorItemCollection->ErrorItem->Description ), 'error' );
 					}
+				} else if ( isset( $response->CreditCardTransactionResultCollection->CreditCardTransactionResult->CreditCardTransactionStatusEnum ) && 'NotAuthorized' == $response->CreditCardTransactionResultCollection->CreditCardTransactionResult->CreditCardTransactionStatusEnum ) {
+					wc_add_notice( '<strong>' . esc_html( $this->title ) . '</strong>: ' . str_replace( array( 'Redecard|', 'Simulator|' ), '', wc_clean( $response->CreditCardTransactionResultCollection->CreditCardTransactionResult->AcquirerMessage ) ), 'error' );
 				} else {
-					wc_add_notice( '<strong>' . __( 'MundiPagg', 'woocommerce-mundipagg' ) . '</strong>: ' . __( 'An error has occurred while processing your payment, please try again. Or contact us for assistance.', 'woocommerce-mundipagg' ), 'error' );
+					wc_add_notice( '<strong>' . esc_html( $this->title ) . '</strong>: ' . __( 'An error has occurred while processing your payment, please try again. Or contact us for assistance.', 'woocommerce-mundipagg' ), 'error' );
 				}
 			} else {
 				if ( isset( $response->OrderKey ) ) {
@@ -675,7 +677,7 @@ class WC_MundiPagg_Gateway extends WC_Payment_Gateway {
 				}
 			}
 		} else {
-			wc_add_notice( '<strong>' . __( 'MundiPagg', 'woocommerce-mundipagg' ) . '</strong>: ' . __( 'An error has occurred while processing your payment, please try again. Or contact us for assistance.', 'woocommerce-mundipagg' ), 'error' );
+			wc_add_notice( '<strong>' . esc_html( $this->title ) . '</strong>: ' . __( 'An error has occurred while processing your payment, please try again. Or contact us for assistance.', 'woocommerce-mundipagg' ), 'error' );
 		}
 
 		// The request failed.
