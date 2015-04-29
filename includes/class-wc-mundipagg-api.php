@@ -413,21 +413,6 @@ class WC_Mundipagg_API {
 			);
 		}
 
-		if ( isset( $_POST['mundipagg_payment_type'] ) ) {
-			switch ( $_POST['mundipagg_payment_type'] ) {
-				case 'credit-card' :
-
-					break;
-
-				case 'ticket' :
-
-					break;
-
-				default :
-					break;
-			}
-		}
-
 		$request = apply_filters( 'woocommerce_mundipagg_payment_data', $request, $order );
 
 		return $request;
