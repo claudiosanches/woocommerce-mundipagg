@@ -50,8 +50,8 @@ class WC_Mundipagg_Credit_Card_Gateway extends WC_Payment_Gateway {
 
 		// Actions.
 		add_action( 'woocommerce_update_options_payment_gateways_' . $this->id, array( $this, 'process_admin_options' ) );
-		// add_action( 'woocommerce_thankyou_' . $this->id, array( $this, 'thankyou_page' ) );
-		// add_action( 'woocommerce_email_after_order_table', array( $this, 'email_instructions' ), 10, 3 );
+		add_action( 'woocommerce_thankyou_' . $this->id, array( $this, 'thankyou_page' ) );
+		add_action( 'woocommerce_email_after_order_table', array( $this, 'email_instructions' ), 10, 3 );
 	}
 
 	/**
@@ -205,7 +205,7 @@ class WC_Mundipagg_Credit_Card_Gateway extends WC_Payment_Gateway {
 				'type'        => 'checkbox',
 				'label'       => __( 'Enable logging', 'woocommerce-mundipagg' ),
 				'default'     => 'no',
-				'description' => sprintf( __( 'Log MundiPagg events, such as API requests, you can check this log in %s.', 'woocommerce-mundipagg' ), '<a href="' . esc_url( admin_url( 'admin.php?page=wc-status&tab=logs&log_file=' . esc_attr( $this->id ) . '-' . sanitize_file_name( wp_hash( $this->id ) ) . '.log' ) ) . '">' . __( 'System Status &gt; Logs', 'iugu-woocommerce' ) . '</a>' )
+				'description' => sprintf( __( 'Log MundiPagg events, such as API requests, you can check this log in %s.', 'woocommerce-mundipagg' ), '<a href="' . esc_url( admin_url( 'admin.php?page=wc-status&tab=logs&log_file=' . esc_attr( $this->id ) . '-' . sanitize_file_name( wp_hash( $this->id ) ) . '.log' ) ) . '">' . __( 'System Status &gt; Logs', 'woocommerce-mundipagg' ) . '</a>' )
 			)
 		);
 	}
@@ -302,5 +302,71 @@ class WC_Mundipagg_Credit_Card_Gateway extends WC_Payment_Gateway {
 			'result'   => 'fail',
 			'redirect' => ''
 		);
+	}
+
+	/**
+	 * Thank You page message.
+	 *
+	 * @param  int    $order_id Order ID.
+	 *
+	 * @return string
+	 */
+	public function thankyou_page( $order_id ) {
+		$order        = new WC_Order( $order_id );
+		$order_status = $order->get_status();
+		$data         = get_post_meta( $order_id, '_mundipagg_credit_card_data', true );
+
+		if ( isset( $data['installments'] ) && 'processing' == $order_status ) {
+			woocommerce_get_template(
+				'credit-card/payment-instructions.php',
+				array(
+					'brand'        => $data['brand'],
+					'installments' => $data['installments']
+				),
+				'woocommerce/mundipagg/',
+				WC_MundiPagg::get_templates_path()
+			);
+		}
+	}
+
+	/**
+	 * Add content to the WC emails.
+	 *
+	 * @param  object $order         Order object.
+	 * @param  bool   $sent_to_admin Send to admin.
+	 * @param  bool   $plain_text    Plain text or HTML.
+	 *
+	 * @return string                Payment instructions.
+	 */
+	public function email_instructions( $order, $sent_to_admin, $plain_text = false ) {
+		if ( $sent_to_admin || ! in_array( $order->get_status(), array( 'processing', 'on-hold' ) ) || $this->id !== $order->payment_method ) {
+			return;
+		}
+
+		$data = get_post_meta( $order->id, '_mundipagg_credit_card_data', true );
+
+		if ( isset( $data['installments'] ) ) {
+			if ( $plain_text ) {
+				woocommerce_get_template(
+					'credit-card/emails/plain-instructions.php',
+					array(
+						'brand'        => $data['brand'],
+						'installments' => $data['installments']
+					),
+					'woocommerce/mundipagg/',
+					WC_MundiPagg::get_templates_path()
+				);
+			} else {
+				woocommerce_get_template(
+					'credit-card/emails/html-instructions.php',
+					array(
+						'brand'        => $data['brand'],
+						'installments' => $data['installments']
+					),
+					'woocommerce/mundipagg/',
+					WC_MundiPagg::get_templates_path()
+				);
+			}
+		}
 	}
 }

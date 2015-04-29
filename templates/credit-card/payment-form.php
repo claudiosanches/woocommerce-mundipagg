@@ -1,6 +1,6 @@
 <?php
 /**
- * Mundipagg - Credit Card (checkout form).
+ * Credit Card - Checkout form.
  *
  * @version 2.0.0
  */

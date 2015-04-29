@@ -627,9 +627,11 @@ class WC_Mundipagg_API {
 				case 'captured' :
 				case 'paid' :
 				case 'overpaid' :
-					$order->add_order_note( __( 'MundiPagg: Transaction approved.', 'woocommerce-mundipagg' ) );
-
-					if ( 'overpaid' == $order_status ) {
+					if ( 'paid' == $order_status ) {
+						$order->add_order_note( __( 'MundiPagg: Transaction approved.', 'woocommerce-mundipagg' ) );
+					} else if ( 'captured' == $order_status ) {
+						$order->add_order_note( __( 'MundiPagg: Payment captured.', 'woocommerce-mundipagg' ) );
+					} else if ( 'overpaid' == $order_status ) {
 						$order->add_order_note( __( 'MundiPagg: This order was paid with a higher value than expected.', 'woocommerce-mundipagg' ) );
 					}
 
