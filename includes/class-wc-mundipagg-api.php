@@ -381,9 +381,13 @@ class WC_Mundipagg_API {
 				'ExpYear'                 => $expiry['year'],
 				'CreditCardBrandEnum'     => $card_brand,
 				'PaymentMethodCode'       => ( 'staging' == $this->gateway->environment ) ? 1 : null,
-				// 'PaymentMethodCode'       => null,
-				'CreditCardOperationEnum' => 'AuthAndCapture',
+				'CreditCardOperationEnum' => sanitize_text_field( $this->gateway->auth_capture ),
 			);
+
+			if ( 'AuthAndCaptureWithDelay' == $this->gateway->auth_capture ) {
+				$capture_delay = asbint( $this->gateway->capture_delay );
+				$credit_card['CaptureDelayInMinutes'] = ( 7200 >= $capture_delay ) ? $capture_delay : 7200;
+			}
 
 			update_post_meta( $order->id, '_mundipagg_credit_card_data', array(
 				'brand'        => $card_brand,

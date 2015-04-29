@@ -34,6 +34,8 @@ class WC_Mundipagg_Credit_Card_Gateway extends WC_Payment_Gateway {
 		$this->description          = $this->get_option( 'description' );
 		$this->environment          = $this->get_option( 'environment' );
 		$this->merchant_key         = $this->get_option( 'merchant_key' );
+		$this->auth_capture         = $this->get_option( 'auth_capture' );
+		$this->capture_delay        = $this->get_option( 'capture_delay' );
 		$this->installments         = $this->get_option( 'installments' );
 		$this->interest_rate        = $this->get_option( 'interest_rate' );
 		$this->interest             = $this->get_option( 'interest' );
@@ -52,6 +54,10 @@ class WC_Mundipagg_Credit_Card_Gateway extends WC_Payment_Gateway {
 		add_action( 'woocommerce_update_options_payment_gateways_' . $this->id, array( $this, 'process_admin_options' ) );
 		add_action( 'woocommerce_thankyou_' . $this->id, array( $this, 'thankyou_page' ) );
 		add_action( 'woocommerce_email_after_order_table', array( $this, 'email_instructions' ), 10, 3 );
+
+		if ( is_admin() ) {
+			add_action( 'admin_enqueue_scripts', array( $this, 'admin_scripts' ) );
+		}
 	}
 
 	/**
@@ -123,6 +129,26 @@ class WC_Mundipagg_Credit_Card_Gateway extends WC_Payment_Gateway {
 				'title'       => __( 'Payment Options', 'woocommerce-mundipagg' ),
 				'type'        => 'title',
 				'description' => ''
+			),
+			'auth_capture' => array(
+				'title'       => __( 'Authorization and Capture methods', 'woocommerce-mundipagg' ),
+				'type'        => 'select',
+				'description' => __( 'Choose your authorization and capture methods.', 'woocommerce-mundipagg' ),
+				'desc_tip'    => true,
+				'class'       => 'wc-enhanced-select',
+				'default'     => 'AuthAndCapture',
+				'options'     => array(
+					'AuthOnly'                => __( 'Authorize only', 'woocommerce-mundipagg' ),
+					'AuthAndCapture'          => __( 'Authorize and capture', 'woocommerce-mundipagg' ),
+					'AuthAndCaptureWithDelay' => __( 'Authorize and capture with delay', 'woocommerce-mundipagg' ),
+				)
+			),
+			'capture_delay' => array(
+				'title'       => __( 'Capture Delay', 'woocommerce-mundipagg' ),
+				'type'        => 'text',
+				'description' => __( 'Enter with the capture delay in minutes. There can be more than 5 days (7200 minutes).', 'woocommerce-mundipagg' ),
+				'desc_tip'    => true,
+				'default'     => '60'
 			),
 			'installments' => array(
 				'title'       => __( 'Installment Within', 'woocommerce-mundipagg' ),
@@ -367,6 +393,19 @@ class WC_Mundipagg_Credit_Card_Gateway extends WC_Payment_Gateway {
 					WC_MundiPagg::get_templates_path()
 				);
 			}
+		}
+	}
+
+	/**
+	 * Admin scripts.
+	 *
+	 * @param string $hook Page slug.
+	 */
+	public function admin_scripts( $hook ) {
+		if ( 'woocommerce_page_wc-settings' === $hook && ( isset( $_GET['section'] ) && strtolower( get_class( $this ) ) == strtolower( $_GET['section'] ) ) ) {
+			$suffix = defined( 'SCRIPT_DEBUG' ) && SCRIPT_DEBUG ? '' : '.min';
+
+			wp_enqueue_script( 'woocommerce-mundipagg-credit-card-admin', plugins_url( 'assets/js/admin-credit-card' . $suffix . '.js', plugin_dir_path( __FILE__ ) ), array( 'jquery' ), WC_Mundipagg::VERSION, true );
 		}
 	}
 }
