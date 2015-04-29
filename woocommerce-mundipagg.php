@@ -5,7 +5,7 @@
  * Description: MundiPagg gateway for WooCommerce
  * Author: Claudio Sanches
  * Author URI: https://claudiosmweb.com/
- * Version: 1.0.0
+ * Version: 2.0.0
  * License: GPLv2 or later
  * Text Domain: woocommerce-mundipagg
  * Domain Path: /languages/
@@ -15,19 +15,19 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-if ( ! class_exists( 'WC_MundiPagg' ) ) :
+if ( ! class_exists( 'WC_Mundipagg' ) ) :
 
 /**
  * WooCommerce MundiPagg main class.
  */
-class WC_MundiPagg {
+class WC_Mundipagg {
 
 	/**
 	 * Plugin version.
 	 *
 	 * @var string
 	 */
-	const VERSION = '1.0.0';
+	const VERSION = '2.0.0';
 
 	/**
 	 * Instance of this class.
@@ -43,8 +43,13 @@ class WC_MundiPagg {
 		// Load plugin text domain
 		add_action( 'init', array( $this, 'load_plugin_textdomain' ) );
 
-		// Initialize the plugin actions.
-		$this->init();
+		if ( class_exists( 'SoapClient' ) && class_exists( 'WC_Payment_Gateway' ) && class_exists( 'Extra_Checkout_Fields_For_Brazil' ) ) {
+			$this->includes();
+
+			add_filter( 'woocommerce_payment_gateways', array( $this, 'add_gateway' ) );
+		} else {
+			add_action( 'admin_notices', array( $this, 'missing_dependencies_notice' ) );
+		}
 	}
 
 	/**
@@ -81,25 +86,6 @@ class WC_MundiPagg {
 	}
 
 	/**
-	 * Initialize the plugin public actions.
-	 */
-	protected function init() {
-		if ( class_exists( 'SoapClient' ) ) {
-			// Checks with WooCommerce is installed.
-			if ( class_exists( 'WC_Payment_Gateway' ) && class_exists( 'Extra_Checkout_Fields_For_Brazil' ) ) {
-				// Include the WC_MundiPagg_Gateway class.
-				include_once 'includes/class-wc-mundipagg-gateway.php';
-
-				add_filter( 'woocommerce_payment_gateways', array( $this, 'add_gateway' ) );
-			} else {
-				add_action( 'admin_notices', array( $this, 'woocommerce_missing_notice' ) );
-			}
-		} else {
-			add_action( 'admin_notices', array( $this, 'soap_missing_notice' ) );
-		}
-	}
-
-	/**
 	 * Add the gateway to WooCommerce.
 	 *
 	 * @param  array $methods WooCommerce payment methods.
@@ -107,38 +93,31 @@ class WC_MundiPagg {
 	 * @return array          Payment methods with MundiPagg.
 	 */
 	public function add_gateway( $methods ) {
-		$methods[] = 'WC_MundiPagg_Gateway';
+		$methods[] = 'WC_Mundipagg_Backing_Ticket_Gateway';
+		$methods[] = 'WC_Mundipagg_Credit_Card_Gateway';
 
 		return $methods;
 	}
 
 	/**
-	 * WooCommerce fallback notice.
-	 *
-	 * @return string
+	 * Includes.
 	 */
-	public function woocommerce_missing_notice() {
-		echo '<div class="error"><p>' . sprintf(
-			__( '%s depends on the last version of the %s and the %s to work!', 'woocommerce-mundipagg' ),
-			'<strong>' . __( 'WooCommerce MundiPagg Gateway', 'woocommerce-mundipagg' ) . '</strong>',
-			'<a href="http://wordpress.org/extend/plugins/woocommerce/">' . __( 'WooCommerce', 'woocommerce-mundipagg' ) . '</a>',
-			'<a href="http://wordpress.org/plugins/woocommerce-extra-checkout-fields-for-brazil/">' . __( 'WooCommerce Extra Checkout Fields for Brazil', 'woocommerce-mundipagg' ) . '</a>'
-		) . '</p></div>';
+	private function includes() {
+		include_once 'includes/class-wc-mundipagg-api.php';
+		include_once 'includes/class-wc-mundipagg-banking-ticket-gateway.php';
+		include_once 'includes/class-wc-mundipagg-credit-card-gateway.php';
 	}
 
 	/**
-	 * Soap fallback notice.
+	 * Missing dependencies notice.
 	 *
 	 * @return string
 	 */
-	public function soap_missing_notice() {
-		echo '<div class="error"><p>' . sprintf(
-			__( '%s needs to have installed on your server the SOAP module to works!', 'woocommerce-mundipagg' ),
-			'<strong>' . __( 'WooCommerce MundiPagg Gateway', 'woocommerce-mundipagg' ) . '</strong>'
-		) . '</p></div>';
+	public function missing_dependencies_notice() {
+		include_once 'includes/views/html-notice-missing-dependencies.php';
 	}
 }
 
-add_action( 'plugins_loaded', array( 'WC_MundiPagg', 'get_instance' ) );
+add_action( 'plugins_loaded', array( 'WC_Mundipagg', 'get_instance' ) );
 
 endif;
