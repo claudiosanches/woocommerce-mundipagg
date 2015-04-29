@@ -181,6 +181,36 @@ class WC_Mundipagg_API {
 	}
 
 	/**
+	 * Get credit card brand.
+	 *
+	 * @param  string $number
+	 *
+	 * @return string
+	 */
+	protected function get_card_brand( $number ) {
+		$brand = '';
+
+		// https://gist.github.com/arlm/ceb14a05efd076b4fae5
+		$supported_brands = array(
+			'Visa'       => '/^4\d{12}(\d{3})?$/',
+			'Mastercard' => '/^(5[1-5]\d{4}|677189)\d{10}$/',
+			'Hipercard'  => '/^(606282\d{10}(\d{3})?)|(3841\d{15})$/',
+			'Amex'       => '/^3[47]\d{13}$/',
+			'Diners'     => '/^3(0[0-5]|[68]\d)\d{11}$/',
+			'Elo'        => '/^((((636368)|(438935)|(504175)|(451416)|(636297))\d{0,10})|((5067)|(4576)|(4011))\d{0,12})$/'
+		);
+
+		foreach ( $supported_brands as $key => $value ) {
+			if ( preg_match( $value, $number ) ) {
+				$brand = $key;
+				break;
+			}
+		}
+
+		return $brand;
+	}
+
+	/**
 	 * Generate the payment data.
 	 *
 	 * @param  WC_Order $order Order data.
@@ -339,19 +369,26 @@ class WC_Mundipagg_API {
 		if ( 'credit-card' == $this->method ) {
 			$credit_cards = array();
 			$expiry       = $this->get_credit_card_expiry_date( sanitize_text_field( $_POST['mundipagg_card_expiry'] ) );
+			$card_number  = sanitize_text_field( $this->get_only_numbers( $_POST['mundipagg_card_number'] ) );
+			$card_brand   = $this->get_card_brand( $card_number );
 			$credit_card  = array(
 				'AmountInCents'           => $order_total,
-				'CreditCardNumber'        => sanitize_text_field( $this->get_only_numbers( $_POST['mundipagg_card_number'] ) ),
+				'CreditCardNumber'        => $card_number,
 				'InstallmentCount'        => $installments,
 				'HolderName'              => sanitize_text_field( $_POST['mundipagg_holder_name'] ),
 				'SecurityCode'            => sanitize_text_field( $_POST['mundipagg_card_cvc'] ),
 				'ExpMonth'                => $expiry['month'],
 				'ExpYear'                 => $expiry['year'],
-				'CreditCardBrandEnum'     => 'Visa',
+				'CreditCardBrandEnum'     => $card_brand,
 				'PaymentMethodCode'       => ( 'staging' == $this->gateway->environment ) ? 1 : null,
 				// 'PaymentMethodCode'       => null,
 				'CreditCardOperationEnum' => 'AuthAndCapture',
 			);
+
+			update_post_meta( $order->id, '_mundipagg_credit_card_data', array(
+				'brand'        => $card_brand,
+				'installments' => $installments
+			) );
 
 			$credit_cards[] = $credit_card;
 
@@ -551,7 +588,7 @@ class WC_Mundipagg_API {
 			$smallest_value = ( 5 <= $this->gateway->smallest_installment ) ? $this->gateway->smallest_installment : 5;
 
 			if ( $installments > $_installments || 1 != $installments && $installment_total < $smallest_value ) {
-			 	throw new Exception( __( 'Invalid number of installments!', 'woocommerce-mundipagg' ) );
+				throw new Exception( __( 'Invalid number of installments!', 'woocommerce-mundipagg' ) );
 			}
 		} catch ( Exception $e ) {
 			wc_add_notice( '<strong>' . esc_html( $this->gateway->title ) . '</strong>: ' . esc_html( $e->getMessage() ), 'error' );
