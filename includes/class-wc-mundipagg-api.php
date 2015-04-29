@@ -194,7 +194,7 @@ class WC_Mundipagg_API {
 
 		// Set the order total with interest.
 		if ( 'credit-card' == $this->method && isset( $this->gateway->interest ) && ( $installments >= $this->gateway->interest && 0 != $this->gateway->interest ) ) {
-			$order_total = $order_total * ( ( 100 + $this->gateway->get_valid_value( $this->gateway->interest_rate ) ) / 100 );
+			$order_total = $order_total * ( ( 100 + $this->get_valid_value( $this->gateway->interest_rate ) ) / 100 );
 		}
 
 		// Order request.
@@ -419,7 +419,7 @@ class WC_Mundipagg_API {
 		);
 
 		try {
-			$soap          = new SoapClient( $this->get_api_url(), $soap_opt );
+			$soap          = new SoapClient( $this->get_wsdl_url(), $soap_opt );
 			$soap_response = $soap->CreateOrder( $data );
 			$response[]    = $soap_response;
 
@@ -545,7 +545,7 @@ class WC_Mundipagg_API {
 
 			if ( $installments >= $this->gateway->interest && 0 != $this->gateway->interest ) {
 				$interest_rate     = $this->get_valid_value( $this->gateway->interest_rate ) / 100;
-				$interest_total    = $installment_total * ( $interest_rate / ( 1 - ( 1 / pow( 1 + $interest_rate, $installments ) ) ) );
+				$interest_total    = $order_total * ( $interest_rate / ( 1 - ( 1 / pow( 1 + $interest_rate, $installments ) ) ) );
 				$installment_total = ( $installment_total < $interest_total ) ? $interest_total : $installment_total;
 			}
 			$smallest_value = ( 5 <= $this->gateway->smallest_installment ) ? $this->gateway->smallest_installment : 5;

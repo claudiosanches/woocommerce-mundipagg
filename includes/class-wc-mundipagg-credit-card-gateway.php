@@ -110,9 +110,9 @@ class WC_Mundipagg_Credit_Card_Gateway extends WC_Payment_Gateway {
 				)
 			),
 			'merchant_key' => array(
-				'title'       => __( 'MundiPagg Merchant Key', 'woocommerce-mundipagg' ),
+				'title'       => __( 'Merchant Key', 'woocommerce-mundipagg' ),
 				'type'        => 'text',
-				'description' => __( 'Please enter your MundiPagg Merchant Key address. This is needed in order to take payment.', 'woocommerce-mundipagg' ),
+				'description' => __( 'Please enter your MundiPagg Merchant Key. This is needed in order to take payment.', 'woocommerce-mundipagg' ),
 				'desc_tip'    => true,
 				'default'     => '',
 				'custom_attributes' => array(
@@ -252,7 +252,7 @@ class WC_Mundipagg_Credit_Card_Gateway extends WC_Payment_Gateway {
 
 		// Generate the payment data.
 		if ( $valid ) {
-			$response = $this->generate_payment( $order );
+			$response = $this->api->generate_payment( $order );
 		}
 
 		// Payment response handler.
