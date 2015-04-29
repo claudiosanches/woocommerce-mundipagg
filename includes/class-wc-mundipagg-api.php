@@ -403,11 +403,11 @@ class WC_Mundipagg_API {
 			$tickets = array();
 			$ticket  = array(
 				'AmountInCents'                   => $order_total,
-				'Instructions'                    => $this->gateway->ticket_instructions,
-				'NossoNumero'                     => $this->gateway->ticket_our_number,
-				'DaysToAddInBoletoExpirationDate' => $this->gateway->ticket_days,
+				'Instructions'                    => $this->gateway->instructions,
+				'NossoNumero'                     => $this->gateway->our_number,
+				'DaysToAddInBoletoExpirationDate' => $this->gateway->days_to_pay,
 				'TransactionReference'            => sprintf( __( 'Payment for the order %s', 'woocommerce-mundipagg' ), $order->get_order_number() ),
-				'BankNumber'                      => $this->gateway->ticket_bank_number,
+				'BankNumber'                      => $this->gateway->bank_number,
 			);
 
 			$tickets[] = $ticket;

@@ -93,7 +93,7 @@ class WC_Mundipagg {
 	 * @return array          Payment methods with MundiPagg.
 	 */
 	public function add_gateway( $methods ) {
-		$methods[] = 'WC_Mundipagg_Backing_Ticket_Gateway';
+		$methods[] = 'WC_Mundipagg_Banking_Ticket_Gateway';
 		$methods[] = 'WC_Mundipagg_Credit_Card_Gateway';
 
 		return $methods;

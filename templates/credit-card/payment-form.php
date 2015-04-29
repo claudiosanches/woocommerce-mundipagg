@@ -2,6 +2,8 @@
 /**
  * Credit Card - Checkout form.
  *
+ * @author  Claudio_Sanches
+ * @package WC_MundiPagg/Templates
  * @version 2.0.0
  */
 
