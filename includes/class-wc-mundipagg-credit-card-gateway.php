@@ -106,7 +106,7 @@ class WC_Mundipagg_Credit_Card_Gateway extends WC_Payment_Gateway {
 			'environment' => array(
 				'title'       => __( 'Environment', 'woocommerce-mundipagg' ),
 				'type'        => 'select',
-				'description' => __( 'Select the environment type (staging or production).', 'woocommerce-mundipagg' ),
+				'description' => __( 'Select the environment type (staging or transaction).', 'woocommerce-mundipagg' ),
 				'desc_tip'    => true,
 				'class'       => 'wc-enhanced-select',
 				'default'     => 'staging',

@@ -532,7 +532,7 @@ class WC_Mundipagg_API {
 
 			// Validate the cvv for the card.
 			if ( ! isset( $posted['mundipagg_card_cvc'] ) || '' === $posted['mundipagg_card_cvc'] ) {
-				throw new Exception( __( 'Please type the cvv code for the card', 'woocommerce-mundipagg' ) );
+				throw new Exception( __( 'Please type the cvc code for the card', 'woocommerce-mundipagg' ) );
 			}
 
 		} catch ( Exception $e ) {
