@@ -42,11 +42,13 @@ class WC_Mundipagg {
 	private function __construct() {
 		// Load plugin text domain
 		add_action( 'init', array( $this, 'load_plugin_textdomain' ) );
+		add_action( 'init', array( __CLASS__, 'add_return_endpoint' ), 0 );
 
 		if ( class_exists( 'SoapClient' ) && class_exists( 'WC_Payment_Gateway' ) && class_exists( 'Extra_Checkout_Fields_For_Brazil' ) ) {
 			$this->includes();
 
 			add_filter( 'woocommerce_payment_gateways', array( $this, 'add_gateway' ) );
+			add_action( 'parse_request', array( $this, 'handle_return_requests' ), 0 );
 		} else {
 			add_action( 'admin_notices', array( $this, 'missing_dependencies_notice' ) );
 		}
@@ -116,7 +118,70 @@ class WC_Mundipagg {
 	public function missing_dependencies_notice() {
 		include_once 'includes/views/html-notice-missing-dependencies.php';
 	}
+
+	/**
+	 * Created the return endpoint.
+	 */
+	public static function add_return_endpoint() {
+		add_rewrite_endpoint( 'wc-mundipagg-return', EP_ROOT );
+	}
+
+	/**
+	 * Plugin activate method.
+	 */
+	public static function activate() {
+		self::add_return_endpoint();
+
+		flush_rewrite_rules();
+	}
+
+	/**
+	 * Plugin deactivate method.
+	 */
+	public static function deactivate() {
+		flush_rewrite_rules();
+	}
+
+	/**
+	 * Handle with return requests.
+	 */
+	public function handle_return_requests() {
+		global $wp;
+
+		// wc-mundipagg-return endpoint requests
+		if ( isset( $wp->query_vars['wc-mundipagg-return'] ) || isset( $_GET['wc-mundipagg-return'] ) ) {
+			ob_start();
+
+			if ( isset( $_POST['xmlStatusNotification'] ) ) {
+				try {
+					$data = html_entity_decode( urldecode( $_POST['xmlStatusNotification'] ) );
+					$xml  = @new SimpleXMLElement( $data, LIBXML_NOCDATA );
+
+					// Banking ticket.
+					if ( isset( $xml->BoletoTransaction ) ) {
+						WC_Mundipagg_API::notification_handler( $xml, 'banking-ticket' );
+					}
+
+					// Credit card.
+					if ( isset( $xml->CreditCardTransaction ) ) {
+						WC_Mundipagg_API::notification_handler( $xml, 'credit-card' );
+					}
+				} catch ( Exception $e ) {
+					wp_die( __( 'Invalid return data', 'woocommerce-mundipagg' ), __( 'Invalid return data', 'woocommerce-mundipagg' ), array( 'response' => 400 ) );
+				}
+			}
+
+			ob_end_clean();
+			die( '1' );
+		}
+	}
 }
+
+/**
+ * Plugin activation and deactivation methods.
+ */
+register_activation_hook( __FILE__, array( 'WC_Mundipagg', 'activate' ) );
+register_deactivation_hook( __FILE__, array( 'WC_Mundipagg', 'deactivate' ) );
 
 add_action( 'plugins_loaded', array( 'WC_Mundipagg', 'get_instance' ) );
 

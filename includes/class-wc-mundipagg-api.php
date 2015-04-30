@@ -593,6 +593,7 @@ class WC_Mundipagg_API {
 	 *
 	 * @param  string $reference.
 	 * @param  string $status.
+	 * @param  string $invoice_prefix
 	 *
 	 * @return bool
 	 */
@@ -647,5 +648,79 @@ class WC_Mundipagg_API {
 		}
 
 		return $valid;
+	}
+
+	/**
+	 * Process the notification data.
+	 *
+	 * @param  string           $id
+	 * @param  string           $merchant_key
+	 * @param  SimpleXMLElement $xml
+	 * @param  string           $debug
+	 *
+	 * @return array
+	 */
+	public static function process_notification_data( $id, $merchant_key, $xml, $debug = 'no' ) {
+		if ( 'yes' == $debug ) {
+			$log = new WC_Logger();
+		}
+
+		if ( 'yes' == $debug ) {
+			$log->add( $id, 'IPN request: ' . print_r( $xml, true ) );
+		}
+
+		try {
+			if ( ! isset( $xml->OrderStatus ) ) {
+				throw new Exception( 'Missing OrderStatus param' );
+			}
+
+			if ( ! isset( $xml->OrderReference ) ) {
+				throw new Exception( 'Missing OrderReference param' );
+			}
+
+			if ( ! isset( $xml->MerchantKey ) ) {
+				throw new Exception( 'Missing MerchantKey param' );
+			}
+
+			$_merchant_key = (string) $xml->MerchantKey;
+			if ( strtoupper( $merchant_key ) !== strtoupper( $_merchant_key ) ) {
+				throw new Exception( 'Invalid MerchantKey returned' );
+			}
+
+			return array(
+				'reference' => (string) $xml->OrderReference,
+				'status'    => (string) $xml->OrderStatus
+			);
+		} catch ( Exception $e ) {
+			if ( 'yes' == $debug ) {
+				$log->add( $id, 'IPN error: ' . print_r( $e->getMessage(), true ) );
+			}
+
+			return array();
+		}
+	}
+
+	/**
+	 * Notification handler.
+	 *
+	 * @param SimpleXMLElement $xml
+	 * @param string           $method
+	 */
+	public static function notification_handler( $xml, $method ) {
+		$method         = sanitize_text_field( $method );
+		$id             = 'mundipagg-' . $method;
+		$options        = get_option( 'woocommerce_' . $id . '_settings', array() );
+		$merchant_key   = isset( $options['merchant_key'] ) ? $options['merchant_key'] : '';
+		$invoice_prefix = isset( $options['invoice_prefix'] ) ? $options['invoice_prefix'] : 'WC-';
+		$debug          = isset( $options['debug'] ) ? $options['debug'] : '';
+		$data           = self::process_notification_data( $id, $merchant_key, $xml, $debug );
+
+		if ( ! empty( $data ) ) {
+			header( 'HTTP/1.1 200 OK' );
+
+			self::update_order_status( $data['reference'], $data['status'], $invoice_prefix );
+
+			exit;
+		}
 	}
 }
