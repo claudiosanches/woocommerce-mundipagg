@@ -49,6 +49,7 @@ class WC_Mundipagg {
 
 			add_filter( 'woocommerce_payment_gateways', array( $this, 'add_gateway' ) );
 			add_action( 'parse_request', array( $this, 'handle_return_requests' ), 0 );
+			add_filter( 'plugin_action_links_' . plugin_basename( __FILE__ ), array( $this, 'plugin_action_links' ) );
 		} else {
 			add_action( 'admin_notices', array( $this, 'missing_dependencies_notice' ) );
 		}
@@ -174,6 +175,23 @@ class WC_Mundipagg {
 			ob_end_clean();
 			die( '1' );
 		}
+	}
+
+	/**
+	 * Action links.
+	 *
+	 * @param  array $links
+	 *
+	 * @return array
+	 */
+	public function plugin_action_links( $links ) {
+		$plugin_links = array();
+
+		$plugin_links[] = '<a href="' . esc_url( admin_url( 'admin.php?page=wc-settings&tab=checkout&section=wc_mundipagg_banking_ticket_gateway' ) ) . '">' . __( 'Banking Ticket Settings', 'woocommerce-mundipagg' ) . '</a>';
+
+		$plugin_links[] = '<a href="' . esc_url( admin_url( 'admin.php?page=wc-settings&tab=checkout&section=wc_mundipagg_credit_card_gateway' ) ) . '">' . __( 'Credit Card Settings', 'woocommerce-mundipagg' ) . '</a>';
+
+		return array_merge( $plugin_links, $links );
 	}
 }
 
