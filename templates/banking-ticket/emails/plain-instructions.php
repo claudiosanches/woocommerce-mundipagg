@@ -1,14 +1,14 @@
 <?php
 /**
- * Plain email instructions.
+ * Banking Ticket - Plain email instructions.
  *
  * @author  Claudio_Sanches
- * @package WooCommerce_MundiPagg/Templates
- * @version 1.0.0
+ * @package WC_MundiPagg/Templates
+ * @version 2.0.0
  */
 
 if ( ! defined( 'ABSPATH' ) ) {
-	exit; // Exit if accessed directly.
+	exit;
 }
 
 _e( 'Payment', 'woocommerce-mundipagg' );
@@ -19,7 +19,7 @@ _e( 'Please use the link below to view your Banking Ticket, you can print and pa
 
 echo "\n";
 
-echo esc_url( $ticket_url );
+echo esc_url( $url );
 
 echo "\n";
 
