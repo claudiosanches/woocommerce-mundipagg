@@ -17,4 +17,4 @@ echo "\n\n";
 
 printf( __( 'Payment successfully made with %s in %sx.', 'woocommerce-mundipagg' ), $brand, $installments );
 
-echo "\n\n****************************************************\n\n";
+echo "\n\n=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=\n\n";

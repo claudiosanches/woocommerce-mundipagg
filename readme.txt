@@ -4,7 +4,7 @@ Donate link: http://claudiosmweb.com/doacoes/
 Tags: woocommerce, payment gateway
 Requires at least: 4.0
 Tested up to: 4.2.1
-Stable tag: 2.0.0
+Stable tag: 2.0.1
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -34,6 +34,10 @@ Please notice that WooCommerce must be installed and active.
 * Only one account on [MundiPagg](http://www.mundipagg.com.br/).
 
 == Changelog ==
+
+= 2.0.1 - 2015/05/01 =
+
+* Fixed the content of credit card plain email for instructions.
 
 = 2.0.0 =
 
