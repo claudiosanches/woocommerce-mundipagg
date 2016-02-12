@@ -322,7 +322,11 @@ class WC_Mundipagg_API {
 
 					// Format the product name.
 					$item_name = $order_item['name'];
-					$item_meta = new WC_Order_Item_Meta( $order_item['item_meta'] );
+					if ( defined( 'WC_VERSION' ) && version_compare( WC_VERSION, '2.4.0', '<' ) ) {
+						$item_meta = new WC_Order_Item_Meta( $order_item['item_meta'] );
+					} else {
+						$item_meta = new WC_Order_Item_Meta( $order_item );
+					}
 
 					if ( $meta = $item_meta->display( true, true ) ) {
 						$item_name .= ' - ' . $meta;
