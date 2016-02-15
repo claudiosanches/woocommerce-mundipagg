@@ -145,6 +145,8 @@ class WC_Mundipagg {
 	public static function activate() {
 		self::add_return_endpoint();
 
+		add_option( 'wc_mundipagg_new_installation', 'yes' );
+
 		flush_rewrite_rules();
 	}
 
@@ -152,6 +154,8 @@ class WC_Mundipagg {
 	 * Plugin deactivate method.
 	 */
 	public static function deactivate() {
+		delete_option( 'wc_mundipagg_new_installation' );
+
 		flush_rewrite_rules();
 	}
 

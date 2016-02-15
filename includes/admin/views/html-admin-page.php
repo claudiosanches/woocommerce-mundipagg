@@ -27,7 +27,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 <?php echo wpautop( $this->method_description ); ?>
 
-<?php //include 'html-admin-help-message.php'; ?>
+<?php include 'html-admin-help-message.php'; ?>
 
 <table class="form-table">
 	<?php $this->generate_settings_html(); ?>
