@@ -6,9 +6,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 /**
  * WooCommerce MundiPagg API class.
  *
- * @class   WC_Mundipagg_API
- * @version 2.0.0
- * @author  Claudio Sanches
+ * @package WooCommerce_MundiPagg/API
  */
 class WC_Mundipagg_API {
 

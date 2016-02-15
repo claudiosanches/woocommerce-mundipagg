@@ -9,6 +9,8 @@
  * License: GPLv2 or later
  * Text Domain: woocommerce-mundipagg
  * Domain Path: /languages/
+ *
+ * @package WooCommerce_MundiPagg
  */
 
 if ( ! defined( 'ABSPATH' ) ) {
@@ -117,7 +119,17 @@ class WC_Mundipagg {
 	 * @return string
 	 */
 	public function missing_dependencies_notice() {
-		include_once 'includes/views/html-notice-missing-dependencies.php';
+		if ( ! class_exists( 'SoapClient' ) ) {
+			include_once 'includes/admin/views/html-notice-missing-soap-client.php';
+		}
+
+		if ( ! class_exists( 'WC_Payment_Gateway' ) ) {
+			include_once 'includes/admin/views/html-notice-missing-soap-client.php';
+		}
+
+		if ( ! class_exists( 'Extra_Checkout_Fields_For_Brazil' ) ) {
+			include_once 'includes/admin/views/html-notice-missing-soap-client.php';
+		}
 	}
 
 	/**
