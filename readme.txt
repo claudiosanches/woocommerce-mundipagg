@@ -55,7 +55,8 @@ You can contribute to the source code in our [GitHub](https://github.com/claudio
 - A [MundiPagg](http://www.mundipagg.com.br/) account.
 - Installed [WooCommerce](http://wordpress.org/plugins/woocommerce/) 2.3 or later (better 2.5).
 - Installed the latest version of [WooCommerce Extra Checkout Fields for Brazil](http://wordpress.org/plugins/woocommerce-extra-checkout-fields-for-brazil/)
-- And [SOAP](php.net/manual/book.soap.php) installed in your server.
+- [SOAP](php.net/manual/book.soap.php) installed in your server.
+- And an SSL certificate.
 
 = MundiPagg Settings: =
 
@@ -81,12 +82,13 @@ Now your store is ready to receive payments from MundiPagg.
 
 = What is needed to use this plugin? =
 
-* [WooCommerce](http://wordpress.org/plugins/woocommerce/) version 2.3 or latter installed and active.
-* The latest version of [WooCommerce Extra Checkout Fields for Brazil](http://wordpress.org/plugins/woocommerce-extra-checkout-fields-for-brazil/) installed and active.
-* An account on [MundiPagg](http://www.mundipagg.com.br/).
-* Get your **Merchant Key** from MundiPagg.
-* Set a notification page in MundiPagg.
-* SOAP installed in your server.
+- [WooCommerce](http://wordpress.org/plugins/woocommerce/) version 2.3 or latter installed and active.
+- The latest version of [WooCommerce Extra Checkout Fields for Brazil](http://wordpress.org/plugins/woocommerce-extra-checkout-fields-for-brazil/) installed and active.
+- An account on [MundiPagg](http://www.mundipagg.com.br/).
+- Get your **Merchant Key** from MundiPagg.
+- Set a notification page in MundiPagg.
+- SOAP installed in your server.
+- An SSL certificate.
 
 See more details in the [installation guide](http://wordpress.org/plugins/woocommerce-mundipagg/installation/).
 
