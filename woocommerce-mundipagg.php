@@ -5,7 +5,7 @@
  * Description: MundiPagg gateway for WooCommerce
  * Author: Claudio Sanches
  * Author URI: https://claudiosmweb.com/
- * Version: 2.0.1
+ * Version: 2.1.0
  * License: GPLv2 or later
  * Text Domain: woocommerce-mundipagg
  * Domain Path: /languages/
@@ -29,7 +29,7 @@ class WC_Mundipagg {
 	 *
 	 * @var string
 	 */
-	const VERSION = '2.0.1';
+	const VERSION = '2.1.0';
 
 	/**
 	 * Instance of this class.
