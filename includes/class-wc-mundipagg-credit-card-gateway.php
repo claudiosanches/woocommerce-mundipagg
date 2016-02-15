@@ -72,6 +72,13 @@ class WC_Mundipagg_Credit_Card_Gateway extends WC_Payment_Gateway {
 	}
 
 	/**
+	 * Admin page.
+	 */
+	public function admin_options() {
+		include 'admin/views/html-admin-page.php';
+	}
+
+	/**
 	 * Initialise Gateway Settings Form Fields.
 	 */
 	public function init_form_fields() {

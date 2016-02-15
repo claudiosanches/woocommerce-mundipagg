@@ -59,12 +59,12 @@ class WC_Mundipagg_API {
 	}
 
 	/**
-	 * Returns a bool that indicates if currency is amongst the supported ones.
+	 * Get supported currencies.
 	 *
-	 * @return bool
+	 * @return array
 	 */
-	public function using_supported_currency() {
-		$supported_currencies = apply_filters( 'woocommerce_mundipagg_supported_currencies', array(
+	public function get_supported_currencies() {
+		return apply_filters( 'woocommerce_mundipagg_supported_currencies', array(
 			'ARS',
 			'BOB',
 			'BRL',
@@ -76,8 +76,15 @@ class WC_Mundipagg_API {
 			'EUR',
 			'USD'
 		) );
+	}
 
-		return in_array( get_woocommerce_currency(), $supported_currencies );
+	/**
+	 * Returns a bool that indicates if currency is amongst the supported ones.
+	 *
+	 * @return bool
+	 */
+	public function using_supported_currency() {
+		return in_array( get_woocommerce_currency(), $this->get_supported_currencies() );
 	}
 
 	/**
