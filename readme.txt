@@ -39,6 +39,12 @@ Usually I don't have time to reply support topics, so be patient.
 
 You can contribute to the source code in our [GitHub](https://github.com/claudiosmweb/woocommerce-mundipagg) page.
 
+= TODO =
+
+- Integrate with the new MundiPagg REST API.
+- Allow payments with multiple credit cards.
+- Integration with WooCommerce Subscriptions.
+
 == Installation ==
 
 - Upload plugin files to your plugins folder or install using WordPress built-in "Add New Plugin" installer.
