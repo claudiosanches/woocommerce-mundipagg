@@ -115,17 +115,9 @@ Turn on the "Debug Log" option, try make a payment again, then get your log file
 * Add support for WooCommerce 2.4 and 2.5.
 * First public version.
 
-= 2.0.1 - 2015/05/01 =
-
-* Fixed the content of credit card plain email for instructions.
-
-= 2.0.0 =
-
-* Initial plugin version.
-
 == Upgrade Notice ==
 
-= 2.0.0 =
+= 2.1.0 =
 
 * Add support for WooCommerce 2.4 and 2.5.
 * First public version.
