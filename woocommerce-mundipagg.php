@@ -1,7 +1,7 @@
 <?php
 /**
  * Plugin Name: WooCommerce MundiPagg
- * Plugin URI: https://claudiosmweb.com
+ * Plugin URI: https://github.com/claudiosmweb/woocommerce-mundipagg
  * Description: MundiPagg gateway for WooCommerce
  * Author: Claudio Sanches
  * Author URI: https://claudiosmweb.com/

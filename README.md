@@ -31,7 +31,7 @@ Check our [installation guide](http://wordpress.org/plugins/woocommerce-mundipag
 
 - First of all, make sure if your question has already been answered in our [FAQ](http://wordpress.org/plugins/woocommerce-mundipagg/faq/).
 - Still have question? Create a topic in your [support forum](http://wordpress.org/support/plugin/woocommerce-mundipagg).
-- Or found a bug? Report in our [GitHub page](https://github.com/claudiosmweb/woocommerce-mundipagg/issues).
+- Found a bug? Report in our [GitHub page](https://github.com/claudiosmweb/woocommerce-mundipagg/issues).
 
 Usually I don't have time to reply support topics, so be patient.
 
@@ -39,7 +39,7 @@ Usually I don't have time to reply support topics, so be patient.
 
 You can contribute to the source code in our [GitHub](https://github.com/claudiosmweb/woocommerce-mundipagg) page.
 
-### TODO ###
+### Things should be done in the next versions ###
 
 - Integrate with the new MundiPagg REST API.
 - Allow payments with multiple credit cards.
@@ -56,7 +56,7 @@ You can contribute to the source code in our [GitHub](https://github.com/claudio
 - Installed [WooCommerce](http://wordpress.org/plugins/woocommerce/) 2.3 or later (better 2.5).
 - Installed the latest version of [WooCommerce Extra Checkout Fields for Brazil](http://wordpress.org/plugins/woocommerce-extra-checkout-fields-for-brazil/)
 - [SOAP](php.net/manual/book.soap.php) installed in your server.
-- And an SSL certificate the "Force secure checkout" option enabled.
+- And an SSL certificate and the "Force secure checkout" option enabled.
 
 ### MundiPagg Settings: ###
 
@@ -89,6 +89,7 @@ Now your store is ready to receive payments from MundiPagg.
 - Set a notification page in MundiPagg.
 - SOAP installed in your server.
 - An SSL certificate.
+- Enabled the "Force secure checkout" option in "WooCommerce" -> "Settings" -> "Checkout".
 
 See more details in the [installation guide](http://wordpress.org/plugins/woocommerce-mundipagg/installation/).
 
