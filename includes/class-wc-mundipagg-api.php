@@ -50,12 +50,12 @@ class WC_Mundipagg_API {
 	 * @return bool
 	 */
 	public function check_environment() {
-		if ( 'staging' == $this->gateway->environment ) {
+		if ( 'staging' === $this->gateway->environment ) {
 			return true;
 		}
 
 		// Check for SSL enabled.
-		return 'yes' == get_option( 'woocommerce_force_ssl_checkout' ) && is_ssl();
+		return 'yes' === get_option( 'woocommerce_force_ssl_checkout' ) && is_ssl();
 	}
 
 	/**

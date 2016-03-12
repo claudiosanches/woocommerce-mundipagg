@@ -22,6 +22,10 @@ if ( ! defined( 'ABSPATH' ) ) {
 		if ( '' === $this->merchant_key ) {
 			include_once 'html-notice-merchant-key-missing.php';
 		}
+
+		if ( 'no' === get_option( 'woocommerce_force_ssl_checkout' ) && 'transaction' === $this->environment ) {
+			include_once 'html-notice-ssl-required.php';
+		}
 	}
 ?>
 
