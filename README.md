@@ -4,7 +4,7 @@
 **Tags:** woocommerce, payment gateway  
 **Requires at least:** 4.0  
 **Tested up to:** 4.4  
-**Stable tag:** 2.1.0  
+**Stable tag:** 2.1.1  
 **License:** GPLv2 or later  
 **License URI:** http://www.gnu.org/licenses/gpl-2.0.html  
 
@@ -56,7 +56,7 @@ You can contribute to the source code in our [GitHub](https://github.com/claudio
 - Installed [WooCommerce](http://wordpress.org/plugins/woocommerce/) 2.3 or later (better 2.5).
 - Installed the latest version of [WooCommerce Extra Checkout Fields for Brazil](http://wordpress.org/plugins/woocommerce-extra-checkout-fields-for-brazil/)
 - [SOAP](php.net/manual/book.soap.php) installed in your server.
-- And an SSL certificate.
+- And an SSL certificate the "Force secure checkout" option enabled.
 
 ### MundiPagg Settings: ###
 
@@ -108,24 +108,31 @@ If you are working with downloadable products you should turn on the "Grant acce
 
 Turn on the "Debug Log" option, try make a payment again, then get your log file and paste the content in [pastebin.com](http://pastebin.com/) and start a [support forum topic](http://wordpress.org/support/plugin/woocommerce-mundipagg) with your pastebin link.
 
+## Screenshots ##
+
+### 1. Banking ticket settings. ###
+![1. Banking ticket settings.](http://ps.w.org/woocommerce-mundipagg/assets/screenshot-1.png)
+
+### 2. Credit card settings. ###
+![2. Credit card settings.](http://ps.w.org/woocommerce-mundipagg/assets/screenshot-2.png)
+
+### 3. Example of checkout using the Storefront theme. ###
+![3. Example of checkout using the Storefront theme.](http://ps.w.org/woocommerce-mundipagg/assets/screenshot-3.png)
+
+
 ## Changelog ##
+
+### 2.1.1 - 2016/03/12 ###
+
+* Added alert about SSL requirements on the transaction environment.
 
 ### 2.1.0 - 2016/02/15 ###
 
 * Add support for WooCommerce 2.4 and 2.5.
 * First public version.
 
-### 2.0.1 - 2015/05/01 ###
-
-* Fixed the content of credit card plain email for instructions.
-
-### 2.0.0 ###
-
-* Initial plugin version.
-
 ## Upgrade Notice ##
 
-### 2.0.0 ###
+### 2.1.1 ###
 
-* Add support for WooCommerce 2.4 and 2.5.
-* First public version.
+* Added alert about SSL requirements on the transaction environment.
