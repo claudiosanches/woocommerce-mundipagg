@@ -3,7 +3,7 @@
 **Donate link:** http://claudiosmweb.com/doacoes/  
 **Tags:** woocommerce, payment gateway  
 **Requires at least:** 4.0  
-**Tested up to:** 4.4  
+**Tested up to:** 4.5  
 **Stable tag:** 2.1.1  
 **License:** GPLv2 or later  
 **License URI:** http://www.gnu.org/licenses/gpl-2.0.html  
@@ -20,7 +20,7 @@ Note that this plugin still uses the MundiPagg SOAP service and will be updated 
 
 ### Compatibility ###
 
-- [WooCommerce](https://wordpress.org/plugins/woocommerce/) 2.3 or later (yes, this includes support for 2.5).
+- [WooCommerce](https://wordpress.org/plugins/woocommerce/) 2.3 or later (yes, this includes support for 2.6).
 - [WooCommerce Extra Checkout Fields for Brazil](http://wordpress.org/plugins/woocommerce-extra-checkout-fields-for-brazil/).
 
 ### Install Process: ###
