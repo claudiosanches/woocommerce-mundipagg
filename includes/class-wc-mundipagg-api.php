@@ -729,7 +729,7 @@ class WC_Mundipagg_API {
 
 			self::update_order_status( $data['reference'], $data['status'], $invoice_prefix );
 
-			exit;
+			die( 'OK' );
 		}
 	}
 }
