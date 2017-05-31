@@ -1,10 +1,11 @@
 /* jshint node:true */
-var expandHomeDir = require( 'expand-home-dir' );
-
 module.exports = function( grunt ) {
 'use strict';
 
 	grunt.initConfig({
+
+		// gets the package vars
+		pkg: grunt.file.readJSON( 'package.json' ),
 
 		// Setting folder templates
 		dirs: {
@@ -12,26 +13,6 @@ module.exports = function( grunt ) {
 			fonts:  'assets/fonts',
 			images: 'assets/images',
 			js:     'assets/js'
-		},
-
-		// gets the package vars
-		pkg: grunt.file.readJSON( 'package.json' ),
-		svn_settings: {
-			path: expandHomeDir( '~/Projects/wordpress-plugins-svn/' ) + '<%= pkg.name %>',
-			tag: '<%= svn_settings.path %>/tags/<%= pkg.version %>',
-			trunk: '<%= svn_settings.path %>/trunk',
-			exclude: [
-				'.git/',
-				'.tx/',
-				'.editorconfig',
-				'.gitignore',
-				'.jshintrc',
-				'node_modules/',
-				'Gruntfile.js',
-				'README.md',
-				'package.json',
-				'*.zip'
-			]
 		},
 
 		// Javascript linting with jshint
@@ -48,6 +29,9 @@ module.exports = function( grunt ) {
 
 		// Minify .js files.
 		uglify: {
+			options: {
+				preserveComments: /^!/
+			},
 			dist: {
 				files: [{
 					expand: true,
@@ -94,22 +78,6 @@ module.exports = function( grunt ) {
 			}
 		},
 
-		// Image optimization
-		imagemin: {
-			dist: {
-				options: {
-					optimizationLevel: 7,
-					progressive: true
-				},
-				files: [{
-					expand: true,
-					cwd: './',
-					src: 'screenshot-*.png',
-					dest: './'
-				}]
-			}
-		},
-
 		// Make .pot files
 		makepot: {
 			dist: {
@@ -149,65 +117,17 @@ module.exports = function( grunt ) {
 			}
 		},
 
-		// Rsync commands used to take the files to svn repository
-		rsync: {
+		// Create README.md for GitHub.
+		wp_readme_to_markdown: {
 			options: {
-				args: ['--verbose'],
-				exclude: '<%= svn_settings.exclude %>',
-				syncDest: true,
-				recursive: true
+				screenshot_url: 'http://ps.w.org/<%= pkg.name %>/assets/{screenshot}.png'
 			},
-			tag: {
-				options: {
-					src: './',
-					dest: '<%= svn_settings.tag %>'
-				}
-			},
-			trunk: {
-				options: {
-				src: './',
-				dest: '<%= svn_settings.trunk %>'
-				}
-			}
-		},
-
-		// Shell command to commit the new version of the plugin
-		shell: {
-			// Remove delete files.
-			svn_remove: {
-				command: 'svn st | grep \'^!\' | awk \'{print $2}\' | xargs svn --force delete',
-				options: {
-					stdout: true,
-					stderr: true,
-					execOptions: {
-						cwd: '<%= svn_settings.path %>'
-					}
-				}
-			},
-			// Add new files.
-			svn_add: {
-				command: 'svn add --force * --auto-props --parents --depth infinity -q',
-				options: {
-					stdout: true,
-					stderr: true,
-					execOptions: {
-						cwd: '<%= svn_settings.path %>'
-					}
-				}
-			},
-			// Commit the changes.
-			svn_commit: {
-				command: 'svn commit -m "updated the plugin version to <%= pkg.version %>"',
-				options: {
-					stdout: true,
-					stderr: true,
-					execOptions: {
-						cwd: '<%= svn_settings.path %>'
-					}
+			dest: {
+				files: {
+					'README.md': 'readme.txt'
 				}
 			}
 		}
-
 	});
 
 	// Load tasks
@@ -215,12 +135,9 @@ module.exports = function( grunt ) {
 	grunt.loadNpmTasks( 'grunt-contrib-jshint' );
 	grunt.loadNpmTasks( 'grunt-contrib-uglify' );
 	grunt.loadNpmTasks( 'grunt-contrib-cssmin' );
-	grunt.loadNpmTasks( 'grunt-contrib-imagemin' );
 	grunt.loadNpmTasks( 'grunt-checktextdomain' );
 	grunt.loadNpmTasks( 'grunt-wp-i18n' );
-
-	grunt.loadNpmTasks( 'grunt-rsync' );
-	grunt.loadNpmTasks( 'grunt-shell' );
+	grunt.loadNpmTasks( 'grunt-wp-readme-to-markdown' );
 
 	// Register tasks
 	grunt.registerTask( 'default', [
@@ -228,13 +145,5 @@ module.exports = function( grunt ) {
 		'uglify'
 	]);
 
-	// Deploy task
-	grunt.registerTask( 'deploy', [
-		'default',
-		'rsync:tag',
-		'rsync:trunk',
-		'shell:svn_remove',
-		'shell:svn_add',
-		'shell:svn_commit'
-	] );
+	grunt.registerTask( 'readme', 'wp_readme_to_markdown' );
 };

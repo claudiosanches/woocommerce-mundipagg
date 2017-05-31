@@ -1,10 +1,10 @@
 === WooCommerce MundiPagg ===
 Contributors: claudiosanches
-Donate link: http://claudiosmweb.com/doacoes/
+Donate link: https://claudiosanches.com/doacoes/
 Tags: woocommerce, payment gateway
 Requires at least: 4.0
-Tested up to: 4.5
-Stable tag: 2.1.1
+Tested up to: 4.8
+Stable tag: 2.1.2
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -16,7 +16,7 @@ This plugin adds [MundiPagg](http://www.mundipagg.com.br/) gateway to your WooCo
 
 The WooCommerce MundiPagg plugin was developed without any incentive from MundiPagg. We developed this plugin based on the [MundiPagg official documentation](http://docs.mundipagg.com/).
 
-Note that this plugin still uses the MundiPagg SOAP service and will be updated to the new REST API soon.
+Note that this plugin still uses the MundiPagg SOAP service and will be updated to the new REST API when possible.
 
 = Compatibility =
 
@@ -117,6 +117,10 @@ Turn on the "Debug Log" option, try make a payment again, then get your log file
 
 == Changelog ==
 
+= 2.1.2 - 2017/05/31 =
+
+* Included "OK" into IPN response (thanks to [J. Roque Junior](https://github.com/jroqueweb)).
+
 = 2.1.1 - 2016/03/12 =
 
 * Added alert about SSL requirements on the transaction environment.
@@ -128,6 +132,6 @@ Turn on the "Debug Log" option, try make a payment again, then get your log file
 
 == Upgrade Notice ==
 
-= 2.1.1 =
+= 2.1.2 =
 
-* Added alert about SSL requirements on the transaction environment.
+* Included "OK" into IPN response.
