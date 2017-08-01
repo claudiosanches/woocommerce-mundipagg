@@ -304,7 +304,7 @@ class WC_Mundipagg_API {
 
 			if ( 2 == $order->billing_persontype ) {
 				$request['createOrderRequest']['Buyer']['PersonTypeEnum']      = 'Company';
-				$request['createOrderRequest']['Buyer']['TaxDocumentNumber']   = str_replace( array( '-', '.' ), '', $order->billing_cnpj );
+				$request['createOrderRequest']['Buyer']['TaxDocumentNumber']   = str_replace( array( '-', '.', '/' ), '', $order->billing_cnpj );
 				$request['createOrderRequest']['Buyer']['TaxDocumentTypeEnum'] = 'CNPJ';
 			}
 		}
