@@ -235,7 +235,9 @@ class WC_Mundipagg_Banking_Ticket_Gateway extends WC_Payment_Gateway {
 					) );
 				}
 
-				$updated = WC_Mundipagg_API::update_order_status( (string) $response->OrderReference, (string) $response->OrderStatusEnum, $this->invoice_prefix );
+				$orderReference = $this.invoice_prefix . $order->id;
+
+				$updated = WC_Mundipagg_API::update_order_status( (string) $orderReference, (string) $response->OrderStatusEnum, $this->invoice_prefix );
 
 				if ( $updated ) {
 
