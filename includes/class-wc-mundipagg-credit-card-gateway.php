@@ -4,7 +4,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 /**
- * WooCommerce MundiPagg Credit Card Gateway class.
+ * Credit Card Gateway class.
  *
  * @package WooCommerce_MundiPagg/Gateway
  */

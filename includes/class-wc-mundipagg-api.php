@@ -4,7 +4,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 /**
- * WooCommerce MundiPagg API class.
+ * API class.
  *
  * @package WooCommerce_MundiPagg/API
  */

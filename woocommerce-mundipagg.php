@@ -1,11 +1,11 @@
 <?php
 /**
- * Plugin Name: WooCommerce MundiPagg
+ * Plugin Name: Claudio Sanches - MundiPagg for WooCommerce
  * Plugin URI: https://github.com/claudiosanches/woocommerce-mundipagg
  * Description: MundiPagg gateway for WooCommerce
  * Author: Claudio Sanches
  * Author URI: https://claudiosanches.com/
- * Version: 2.1.2
+ * Version: 2.2.0
  * License: GPLv2 or later
  * Text Domain: woocommerce-mundipagg
  * Domain Path: /languages/
@@ -20,7 +20,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 if ( ! class_exists( 'WC_Mundipagg' ) ) :
 
 /**
- * WooCommerce MundiPagg main class.
+ * Plugin's main class.
  */
 class WC_Mundipagg {
 
@@ -29,7 +29,7 @@ class WC_Mundipagg {
 	 *
 	 * @var string
 	 */
-	const VERSION = '2.1.2';
+	const VERSION = '2.2.0';
 
 	/**
 	 * Instance of this class.

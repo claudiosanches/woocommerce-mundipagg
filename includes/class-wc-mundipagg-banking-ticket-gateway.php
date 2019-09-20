@@ -4,7 +4,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 /**
- * WooCommerce MundiPagg Banking Ticket Gateway class.
+ * Banking Ticket Gateway class.
  *
  * @package WooCommerce_MundiPagg/Gateway
  */

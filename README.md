@@ -1,10 +1,10 @@
-# WooCommerce MundiPagg #
+# Claudio Sanches - MundiPagg for WooCommerce #
 **Contributors:** [claudiosanches](https://profiles.wordpress.org/claudiosanches)  
 **Donate link:** https://claudiosanches.com/doacoes/  
 **Tags:** woocommerce, payment gateway  
 **Requires at least:** 4.0  
-**Tested up to:** 4.8  
-**Stable tag:** 2.1.2  
+**Tested up to:** 5.2  
+**Stable tag:** 2.2.0  
 **License:** GPLv2 or later  
 **License URI:** http://www.gnu.org/licenses/gpl-2.0.html  
 
@@ -14,7 +14,7 @@ Adds MundiPagg gateway to your WooCommerce store
 
 This plugin adds [MundiPagg](http://www.mundipagg.com.br/) gateway to your WooCommerce store.
 
-The WooCommerce MundiPagg plugin was developed without any incentive from MundiPagg. We developed this plugin based on the [MundiPagg official documentation](http://docs.mundipagg.com/).
+This plugin was developed without any incentive from MundiPagg. We developed this plugin based on the [MundiPagg official documentation](http://docs.mundipagg.com/).
 
 Note that this plugin still uses the MundiPagg SOAP service and will be updated to the new REST API when possible.
 
@@ -123,6 +123,10 @@ Turn on the "Debug Log" option, try make a payment again, then get your log file
 
 ## Changelog ##
 
+### 2.2.0 - 2019/09/20 ###
+
+* Change plugin's name from "WooCommerce MundiPagg" to "Claudio Sanches - MundiPagg for WooCommerce".
+
 ### 2.1.2 - 2017/05/31 ###
 
 * Included "OK" into IPN response (thanks to [J. Roque Junior](https://github.com/jroqueweb)).
@@ -138,6 +142,6 @@ Turn on the "Debug Log" option, try make a payment again, then get your log file
 
 ## Upgrade Notice ##
 
-### 2.1.2 ###
+### 2.2.2 ###
 
-* Included "OK" into IPN response.
+* Change plugin's name from "WooCommerce MundiPagg" to "Claudio Sanches - MundiPagg for WooCommerce".
